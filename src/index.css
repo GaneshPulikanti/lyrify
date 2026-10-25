@@ -59,7 +59,7 @@
   padding: 0;
 }
 
-body {
+html, body {
   font-family: var(--font-sans);
   background-color: var(--bg-main);
   color: var(--text-primary);
@@ -68,6 +68,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 button {
@@ -2005,16 +2006,26 @@ input, textarea, select {
   /* Search & Presets */
   .search-section {
     padding: 0.75rem 1rem 0.25rem;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
   .search-container {
     gap: 0.65rem;
+    width: 100%;
   }
   .search-bar {
+    flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+  }
+  .search-input-wrapper {
+    width: 100%;
   }
   .search-input {
     font-size: 0.88rem;
     padding: 0.75rem 4.5rem 0.75rem 2.75rem;
+    width: 100%;
+    box-sizing: border-box;
   }
   .search-icon {
     left: 0.9rem;
@@ -2026,21 +2037,32 @@ input, textarea, select {
     font-size: 0.72rem;
   }
   .btn-fetch {
+    width: 100%;
+    justify-content: center;
     padding: 0.75rem 1.15rem;
     font-size: 0.88rem;
   }
 
   .preset-wrapper {
+    width: 100%;
+    max-width: 100%;
     gap: 0.5rem;
     padding-bottom: 0.35rem;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    overflow-x: auto;
+    box-sizing: border-box;
   }
   .preset-wrapper::-webkit-scrollbar {
     display: none;
   }
   .preset-label {
     font-size: 0.72rem;
+  }
+  .preset-pills {
+    width: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .preset-pill-btn {
     padding: 0.3rem 0.7rem;
@@ -2056,6 +2078,10 @@ input, textarea, select {
     padding: 0.5rem 0.85rem 2.5rem;
     gap: 1rem;
     display: block;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .mobile-view-nav {
@@ -2107,6 +2133,14 @@ input, textarea, select {
     opacity: 0 !important;
     pointer-events: none !important;
   }
+  .preview-stage {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
 
   .mobile-only-action {
     display: block;
@@ -2120,18 +2154,6 @@ input, textarea, select {
     padding: 0.85rem;
     font-size: 0.88rem;
     font-weight: 700;
-  }
-
-  .mobile-edit-shortcut {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.65rem;
-  }
-  .mobile-edit-shortcut .btn {
-    width: 100%;
-    justify-content: center;
-    padding: 0.65rem;
-    font-size: 0.82rem;
   }
 
   /* Editor Sidebar on Mobile */
@@ -2181,14 +2203,16 @@ input, textarea, select {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.25rem;
-    padding: 0.2rem;
+    gap: 0.35rem;
+    padding: 0.25rem;
   }
   .format-pill-btn {
     justify-content: center;
-    padding: 0.45rem 0.25rem;
-    font-size: 0.7rem;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.74rem;
+    font-weight: 600;
     white-space: nowrap;
+    text-align: center;
   }
 
   .stage-toolbar-right {
@@ -2197,32 +2221,37 @@ input, textarea, select {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.5rem;
   }
   .res-pill-group {
     flex: 1;
-    min-width: 135px;
+    min-width: 120px;
     justify-content: center;
   }
   .res-pill-btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.68rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.7rem;
+    font-weight: 600;
   }
   .sim-bg-picker {
     justify-content: center;
-    padding: 0.2rem 0.4rem;
+    padding: 0.25rem 0.5rem;
   }
   .sim-btn {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 
-  /* Large Thumb-Friendly Download & Copy Buttons */
-  .stage-toolbar-right > .btn-secondary,
-  .stage-toolbar-right > .btn-primary {
-    flex: 1;
-    min-width: 125px;
-    padding: 0.75rem 0.6rem;
+  /* Large Thumb-Friendly Side-by-Side Action Buttons */
+  .stage-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .stage-action-buttons .btn {
+    width: 100%;
+    padding: 0.75rem 0.5rem;
     font-size: 0.82rem;
     font-weight: 700;
     justify-content: center;
@@ -2231,45 +2260,198 @@ input, textarea, select {
 
   /* Viewport and Proportional Responsive Card Bounds */
   .preview-viewport {
-    padding: 1.25rem 0.4rem;
-    min-height: 440px;
+    padding: 1.5rem 0.85rem;
+    min-height: 380px;
     border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .export-frame {
     max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .export-frame.format-sticker {
     min-width: unset;
     width: 100%;
-    max-width: 340px;
+    max-width: 320px;
+    height: auto;
   }
   .export-frame.format-story {
-    width: 320px;
-    height: 568px; /* Proportional 9:16 mobile canvas */
+    width: 295px;
+    height: 524px; /* Proportional 9:16 mobile canvas */
+    border-radius: 16px;
   }
   .export-frame.format-square {
-    width: 320px;
-    height: 320px;
+    width: 310px;
+    height: 310px; /* Proportional 1:1 mobile canvas */
+    border-radius: 16px;
   }
   .export-frame.format-portrait {
-    width: 320px;
-    height: 400px;
+    width: 300px;
+    height: 375px; /* 4:5 mobile canvas */
+    border-radius: 16px;
   }
+
+  /* Lyrics Card Core on Mobile */
   .lyrics-card {
     width: 100%;
-    max-width: 340px;
-    padding: 24px !important;
+    max-width: 320px;
+    padding: max(14px, calc(var(--card-padding, 32px) * 0.56)) !important;
+    box-sizing: border-box;
+    margin: 0 auto;
+    transition: all 0.25s ease;
+  }
+
+  /* Inside Story/Square/Portrait frames: the card floats neatly with breathing room */
+  .export-frame.format-story .lyrics-card {
+    width: 88% !important;
+    max-width: 260px !important;
+    padding: 14px !important;
+  }
+  .export-frame.format-square .lyrics-card {
+    width: 90% !important;
+    max-width: 275px !important;
+    padding: 10px 12px !important;
+  }
+  .export-frame.format-portrait .lyrics-card {
+    width: 88% !important;
+    max-width: 260px !important;
+    padding: 12px 14px !important;
+  }
+
+  /* Card Header */
+  .card-header {
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .card-track-info {
+    gap: 0.55rem;
+    min-width: 0;
+    flex: 1;
   }
   .card-cover-wrapper {
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .card-title-block {
+    min-width: 0;
+    flex: 1;
+  }
+  .title-row {
+    gap: 0.3rem;
+    align-items: center;
   }
   .card-song-title {
-    font-size: 0.98rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 135px;
   }
   .card-song-artist {
-    font-size: 0.8rem;
+    font-size: 0.74rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 135px;
+    margin-top: 0.05rem;
+  }
+
+  /* Compact Sleek Barcode Pill */
+  .card-spotify-code {
+    padding: 0.2rem 0.45rem;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+  .card-spotify-code .code-logo svg {
+    width: 11px;
+    height: 11px;
+  }
+  .code-bars {
+    gap: 1.5px;
+    height: 13px;
+  }
+  .code-bar {
+    width: 1.8px;
+  }
+  .code-bar:nth-child(n+15) {
+    display: none;
+  }
+
+  /* Responsive Lyric Typography */
+  .card-lyrics-content {
+    font-size: max(13px, calc(var(--lyrics-font-size, 24px) * 0.65)) !important;
+    gap: 0.5rem !important;
+    margin: 0.35rem 0 0.85rem !important;
+    line-height: 1.4 !important;
+  }
+  .card-lyric-line {
+    font-size: inherit !important;
+    line-height: 1.4 !important;
+    letter-spacing: -0.01em;
+  }
+  .card-lyric-line.highlight {
+    font-size: 1.05em !important;
+    font-weight: 800;
+  }
+
+  /* In Story / Square modes, scale down typography slightly so all elements fit cleanly */
+  .export-frame.format-story .card-lyrics-content {
+    font-size: max(12px, calc(var(--lyrics-font-size, 24px) * 0.58)) !important;
+    gap: 0.45rem !important;
+    margin: 0.35rem 0 0.75rem !important;
+  }
+  .export-frame.format-square .card-lyrics-content {
+    font-size: max(11px, calc(var(--lyrics-font-size, 24px) * 0.46)) !important;
+    gap: 0.28rem !important;
+    margin: 0.2rem 0 0.35rem !important;
+    line-height: 1.35 !important;
+  }
+  .export-frame.format-square .card-header {
+    margin-bottom: 0.35rem !important;
+  }
+  .export-frame.format-square .card-cover-wrapper {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .export-frame.format-square .card-footer {
+    margin-top: 0.35rem !important;
+    gap: 0.35rem !important;
+  }
+
+  /* Card Footer on Mobile */
+  .card-footer {
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+  }
+  .card-progress-container {
+    gap: 0.25rem;
+  }
+  .progress-bar-track {
+    height: 3px;
+  }
+  .card-time-row {
+    font-size: 0.68rem;
+  }
+  .card-brand-badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.68rem;
+    gap: 0.3rem;
+  }
+  .card-brand-badge svg {
+    width: 12px;
+    height: 12px;
   }
 
   /* Guidance Hint Card */
@@ -2313,38 +2495,40 @@ input, textarea, select {
     justify-content: center;
   }
   .format-pill-btn {
-    font-size: 0.65rem;
-    padding: 0.4rem 0.15rem;
+    font-size: 0.68rem;
+    padding: 0.45rem 0.2rem;
   }
   .res-pill-btn {
     font-size: 0.65rem;
     padding: 0.2rem 0.4rem;
   }
   .export-frame.format-story {
-    width: 295px;
-    height: 524px;
+    width: 275px;
+    height: 488px;
   }
   .export-frame.format-square {
-    width: 295px;
-    height: 295px;
+    width: 275px;
+    height: 275px;
   }
   .export-frame.format-portrait {
-    width: 295px;
-    height: 368px;
+    width: 275px;
+    height: 344px;
   }
   .lyrics-card {
-    max-width: 295px;
-    padding: 18px !important;
+    max-width: 300px;
+    padding: 16px !important;
   }
   .card-cover-wrapper {
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
   }
   .card-song-title {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    max-width: 105px;
   }
   .card-song-artist {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    max-width: 105px;
   }
 }
 

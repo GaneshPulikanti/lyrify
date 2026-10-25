@@ -1200,21 +1200,6 @@ export default function App() {
         {/* Right Panel: Live Aesthetic Preview Stage */}
         <section className="preview-stage">
 
-          {/* Mobile Top Shortcut to Switch Back to Editor */}
-          <div className="mobile-edit-shortcut">
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => {
-                setMobileTab('editor');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              <Edit3 size={14} />
-              <span>Customize Lyrics & Themes</span>
-            </button>
-          </div>
-
           {/* Stage Toolbar */}
           <div className="stage-toolbar">
             <div className="stage-toolbar-left">
@@ -1225,7 +1210,7 @@ export default function App() {
                   onClick={() => setFormat('sticker')}
                   title="Crop tightly to card with 100% transparent corners for Instagram Add Photo sticker"
                 >
-                  <span>🏷️ Sticker (Transparent)</span>
+                  <span>🏷️ Sticker</span>
                 </button>
                 <button
                   type="button"
@@ -1233,7 +1218,7 @@ export default function App() {
                   onClick={() => setFormat('story')}
                   title="Full 9:16 screen Instagram story with Spotify ambient blur"
                 >
-                  <span>📱 Full Story (9:16)</span>
+                  <span>📱 Story</span>
                 </button>
                 <button
                   type="button"
@@ -1241,7 +1226,7 @@ export default function App() {
                   onClick={() => setFormat('square')}
                   title="1:1 Square post"
                 >
-                  <span>⏹️ Square (1:1)</span>
+                  <span>⏹️ Square</span>
                 </button>
               </div>
             </div>
@@ -1300,27 +1285,29 @@ export default function App() {
                 />
               </div>
 
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => handleCopyStory(format === 'sticker')}
-                disabled={isExporting}
-                title="Copy transparent card to clipboard"
-              >
-                <Copy size={13} />
-                <span>{format === 'sticker' ? 'Copy Sticker' : 'Copy Story'}</span>
-              </button>
+              <div className="stage-action-buttons">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleCopyStory(format === 'sticker')}
+                  disabled={isExporting}
+                  title="Copy transparent card to clipboard"
+                >
+                  <Copy size={13} />
+                  <span>{format === 'sticker' ? 'Copy Sticker' : 'Copy Story'}</span>
+                </button>
 
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={() => handleExportPNG(format === 'sticker')}
-                disabled={isExporting}
-                title="Download PNG image"
-              >
-                <Download size={13} />
-                <span>{format === 'sticker' ? 'Download Sticker' : 'Download Story'}</span>
-              </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => handleExportPNG(format === 'sticker')}
+                  disabled={isExporting}
+                  title="Download PNG image"
+                >
+                  <Download size={13} />
+                  <span>{format === 'sticker' ? 'Download Sticker' : 'Download Story'}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1353,7 +1340,9 @@ export default function App() {
                   borderRadius: `${borderRadius}px`,
                   padding: `${cardPadding}px`,
                   textAlign: textAlign,
-                  boxShadow: (showShadow && format !== 'sticker') ? undefined : 'none'
+                  boxShadow: (showShadow && format !== 'sticker') ? undefined : 'none',
+                  '--card-padding': `${cardPadding}px`,
+                  '--lyrics-font-size': `${fontSize}px`
                 }}
               >
 
