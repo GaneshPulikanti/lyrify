@@ -3,7 +3,7 @@ import {
   Play, Pause, Download, Copy, Sparkles, Check, Star,
   Search, Sliders, Music, Layout, Image as ImageIcon,
   Type, AlignLeft, AlignCenter, RefreshCw, X, Plus, Layers,
-  Eye, Edit3, Coffee, Heart, ExternalLink
+  Eye, Edit3
 } from 'lucide-react';
 import { toPng, toBlob, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
@@ -54,10 +54,6 @@ export default function App() {
   // --- Custom Lyrics Modal State ---
   const [isCustomLyricsOpen, setIsCustomLyricsOpen] = useState(false);
   const [customLyricsText, setCustomLyricsText] = useState('');
-
-  // --- Tip & Monetization State ---
-  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
-  const coffeeUrl = 'https://buymeacoffee.com/ganeshpulikanti';
 
   // Refs
   const exportFrameRef = useRef(null);
@@ -541,16 +537,6 @@ export default function App() {
           >
             <Download size={16} />
             <span>{format === 'sticker' ? 'Export Transparent Card' : 'Export Image'}</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-coffee"
-            onClick={() => setIsTipModalOpen(true)}
-            title="Support Lyrify — Buy me a coffee"
-          >
-            <Coffee size={15} />
-            <span>Support</span>
           </button>
         </div>
       </header>
@@ -1359,32 +1345,6 @@ export default function App() {
 
           </div>
 
-          {/* Creator Support & Tip Banner */}
-          <div className="support-banner">
-            <div className="support-banner-left">
-              <div className="support-cup-icon">
-                <Coffee size={22} />
-              </div>
-              <div className="support-banner-text">
-                <div className="support-banner-heading">
-                  <span>Enjoying Lyrify? Keep it 100% Free</span>
-                  <span className="support-pill">✨ No Watermark</span>
-                </div>
-                <p className="support-banner-sub">
-                  If this tool saved you time making aesthetic lyric stories, consider buying a coffee to support server &amp; 4K processing costs!
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="btn btn-coffee"
-              onClick={() => setIsTipModalOpen(true)}
-            >
-              <Heart size={14} fill="currentColor" />
-              <span>Buy Me a Coffee</span>
-            </button>
-          </div>
-
           <div className="stage-footer-hint">
             <div className="hint-card">
               <div className="hint-badge">💡 How to Share to Instagram Stories (Zero White Edges)</div>
@@ -1418,18 +1378,6 @@ export default function App() {
             <p className="footer-tagline">
               Aesthetic Spotify lyrics sticker &amp; card generator for Instagram Stories, TikTok, and WhatsApp.
             </p>
-            <div className="footer-tip-row">
-              <a
-                href={coffeeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-tip-badge"
-              >
-                <Coffee size={14} />
-                <span>Support Ganesh on Buy Me a Coffee</span>
-                <ExternalLink size={12} />
-              </a>
-            </div>
           </div>
           <div className="footer-disclaimer">
             <p>
@@ -1480,103 +1428,6 @@ export default function App() {
               >
                 Apply Lyrics
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Support & Tip Modal */}
-      {isTipModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsTipModalOpen(false)}>
-          <div className="modal-card tip-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="tip-modal-title">
-                <div className="tip-cup-badge">
-                  <Coffee size={18} />
-                </div>
-                <h3>Support Lyrify</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsTipModalOpen(false)}
-                title="Close"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="tip-modal-desc">
-              Lyrify is an independent creator project made for music lovers. There are no annoying ads, subscriptions, or watermarks. Every coffee directly supports server hosting, lyrics search APIs, and lossless 4K export engines!
-            </p>
-
-            <div className="tip-tiers">
-              <a
-                href={coffeeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="tip-tier-card"
-                onClick={() => confetti({ particleCount: 30, spread: 50 })}
-              >
-                <span className="tip-tier-emoji">☕</span>
-                <div className="tip-tier-info">
-                  <span className="tip-tier-label">1 Coffee</span>
-                  <span className="tip-tier-desc">Help pay server costs</span>
-                </div>
-                <span className="tip-tier-price">$3</span>
-              </a>
-
-              <a
-                href={coffeeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="tip-tier-card highlight-tier"
-                onClick={() => confetti({ particleCount: 45, spread: 60 })}
-              >
-                <span className="tip-tier-emoji">🧋</span>
-                <div className="tip-tier-info">
-                  <span className="tip-tier-label">Boba &amp; Spotify Fuel</span>
-                  <span className="tip-tier-desc">Supports new themes &amp; fonts</span>
-                </div>
-                <span className="tip-tier-price">$5</span>
-              </a>
-
-              <a
-                href={coffeeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="tip-tier-card"
-                onClick={() => confetti({ particleCount: 60, spread: 70 })}
-              >
-                <span className="tip-tier-emoji">🍕</span>
-                <div className="tip-tier-info">
-                  <span className="tip-tier-label">Super Fan Pizza</span>
-                  <span className="tip-tier-desc">Massive love &amp; VIP gratitude</span>
-                </div>
-                <span className="tip-tier-price">$10</span>
-              </a>
-            </div>
-
-            <div className="tip-profile-badge">
-              <div className="tip-profile-avatar">
-                <Coffee size={18} />
-              </div>
-              <div className="tip-profile-details">
-                <span className="tip-profile-name">Ganesh Pulikanti</span>
-                <span className="tip-profile-handle">buymeacoffee.com/ganeshpulikanti</span>
-              </div>
-              <span className="tip-profile-verified">✓ Verified Creator</span>
-            </div>
-
-            <div className="tip-modal-footer">
-              <a
-                href={coffeeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-coffee btn-block"
-              >
-                <span>Support on Buy Me a Coffee</span>
-                <ExternalLink size={15} />
-              </a>
             </div>
           </div>
         </div>
