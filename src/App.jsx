@@ -3,11 +3,31 @@ import {
   Play, Pause, Download, Copy, Sparkles, Check, Star,
   Search, Sliders, Music, Layout, Image as ImageIcon,
   Type, AlignLeft, AlignCenter, RefreshCw, X, Plus, Layers,
-  Eye, Edit3
+  Eye, Edit3, Palette, Pipette
 } from 'lucide-react';
 import { toPng, toBlob, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
 import { PRESET_SONGS } from './presets.js';
+
+// Curated 16 Aesthetic Color Palette Presets
+const COLOR_PRESETS = [
+  { id: 'dynamic', label: 'Album Match', bg: 'dynamic' },
+  { id: '#1db954', label: 'Spotify', bg: '#1db954' },
+  { id: '#8b5cf6', label: 'Violet', bg: '#8b5cf6' },
+  { id: '#f43f5e', label: 'Rose Pink', bg: '#f43f5e' },
+  { id: '#0284c7', label: 'Ocean Blue', bg: '#0284c7' },
+  { id: '#ea580c', label: 'Sunset Red', bg: '#ea580c' },
+  { id: '#eab308', label: 'Cyber Gold', bg: '#eab308' },
+  { id: '#312e81', label: 'Midnight', bg: '#312e81' },
+  { id: '#06b6d4', label: 'Cyan', bg: '#06b6d4' },
+  { id: '#10b981', label: 'Emerald', bg: '#10b981' },
+  { id: '#701a75', label: 'Plum Wine', bg: '#701a75' },
+  { id: '#451a03', label: 'Warm Amber', bg: '#451a03' },
+  { id: '#3e2723', label: 'Mocha', bg: '#3e2723' },
+  { id: '#000000', label: 'Pitch OLED', bg: '#000000' },
+  { id: '#18181b', label: 'Charcoal', bg: '#18181b' },
+  { id: '#ffffff', label: 'Pure White', bg: '#ffffff' }
+];
 
 export default function App() {
   // --- Song & Lyrics State ---
@@ -27,7 +47,10 @@ export default function App() {
   // --- Card Customization State ---
   // Default format is 'sticker' (Transparent Card cropped tightly up to cover with 100% transparent corners)
   const [format, setFormat] = useState('sticker'); // 'sticker' | 'story' | 'square' | 'portrait'
-  const [theme, setTheme] = useState('dynamic'); // 'dynamic' | 'spotify' | 'glass' | 'aurora' | 'sunset' | 'oled' | 'cyber' | 'sepia'
+  const [selectedColor, setSelectedColor] = useState('dynamic'); // 'dynamic' | '#1db954' | hex string | 'custom'
+  const [customColor, setCustomColor] = useState('#8b5cf6');
+  const [colorStyle, setColorStyle] = useState('gradient'); // 'gradient' | 'solid' | 'glass'
+  const [albumColor, setAlbumColor] = useState(PRESET_SONGS[0].spotifyColor || 'rgb(29, 185, 84)');
   const [borderRadius, setBorderRadius] = useState(32);
   const [bgStyle, setBgStyle] = useState('album-blur'); // 'album-blur' | 'mesh' | 'minimal' | 'vinyl'
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
@@ -490,6 +513,69 @@ export default function App() {
     return `/api/image-proxy?url=${encodeURIComponent(coverArt)}`;
   };
 
+  // Automatically extract vibrant dominant color from album cover dynamically per song
+  useEffect(() => {
+    if (currentSong?.spotifyColor) {
+      setAlbumColor(currentSong.spotifyColor);
+      return;
+    }
+    if (!currentSong?.coverArt) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 16;
+        canvas.height = 16;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 16, 16);
+        const data = ctx.getImageData(0, 0, 16, 16).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 16) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+          count++;
+        }
+        r = Math.round(r / count);
+        g = Math.round(g / count);
+        b = Math.round(b / count);
+        setAlbumColor(`rgb(${r}, ${g}, ${b})`);
+      } catch (e) {
+        setAlbumColor('rgb(35, 45, 60)');
+      }
+    };
+    img.src = currentSong.coverArt;
+  }, [currentSong]);
+
+  // Compute Card Background (dynamic, custom, gradient, solid, or glass)
+  const getCardBackground = () => {
+    if (selectedColor === 'dynamic') {
+      const base = currentSong.spotifyColor || albumColor || 'rgb(35, 45, 60)';
+      if (colorStyle === 'solid') return base;
+      if (colorStyle === 'glass') return `linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))`;
+      return `linear-gradient(145deg, ${base}, #08090d 88%)`;
+    }
+
+    const hex = selectedColor === 'custom' ? customColor : selectedColor;
+    if (colorStyle === 'solid') {
+      return hex;
+    }
+    if (colorStyle === 'glass') {
+      return `linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04))`;
+    }
+    // Gradient mode:
+    if (hex === '#000000') return '#000000';
+    if (hex === '#ffffff') return '#ffffff';
+    return `linear-gradient(145deg, ${hex}, #08090d 88%)`;
+  };
+
+  const isLightCard = () => {
+    const hex = selectedColor === 'custom' ? customColor : selectedColor;
+    return hex === '#ffffff';
+  };
+
   return (
     <div className="app-root">
 
@@ -756,36 +842,108 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Aesthetic Themes */}
+              {/* Card Color Panel */}
               <div className="control-group">
                 <div className="label-with-meta">
-                  <label className="control-label">Aesthetic Color Theme</label>
-                  <span className="meta-tip">{theme.toUpperCase()}</span>
-                </div>
-                <div className="theme-swatches">
-                  {[
-                    { id: 'dynamic', label: 'Dynamic', bg: 'dynamic' },
-                    { id: 'spotify', label: 'Spotify', bg: 'linear-gradient(135deg, #121212, #1db954)' },
-                    { id: 'glass', label: 'Glass', bg: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05))' },
-                    { id: 'aurora', label: 'Aurora', bg: 'linear-gradient(135deg, #2e0854, #8a2be2, #00ffff)' },
-                    { id: 'sunset', label: 'Sunset', bg: 'linear-gradient(135deg, #4a154b, #e05252, #f5af19)' },
-                    { id: 'oled', label: 'OLED', bg: '#000000' },
-                    { id: 'cyber', label: 'Cyber', bg: 'linear-gradient(135deg, #051923, #00a896, #028090)' },
-                    { id: 'sepia', label: 'Vintage', bg: 'linear-gradient(135deg, #2b2621, #483d35, #75675c)' }
-                  ].map((t) => (
+                  <div className="panel-title-row">
+                    <Palette size={16} className="panel-icon" />
+                    <label className="control-label">Card Background &amp; Colors</label>
+                  </div>
+                  <div className="color-style-toggle">
                     <button
-                      key={t.id}
                       type="button"
-                      className={`theme-swatch ${theme === t.id ? 'active' : ''}`}
-                      onClick={() => setTheme(t.id)}
+                      className={`style-pill-btn ${colorStyle === 'gradient' ? 'active' : ''}`}
+                      onClick={() => setColorStyle('gradient')}
+                      title="Subtle Dark Gradient"
                     >
-                      <span
-                        className={`swatch-color ${t.bg === 'dynamic' ? 'dynamic-gradient' : ''}`}
-                        style={t.bg !== 'dynamic' ? { background: t.bg } : {}}
-                      />
-                      <span className="swatch-label">{t.label}</span>
+                      Gradient
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      className={`style-pill-btn ${colorStyle === 'solid' ? 'active' : ''}`}
+                      onClick={() => setColorStyle('solid')}
+                      title="Clean Flat Solid Color"
+                    >
+                      Solid
+                    </button>
+                    <button
+                      type="button"
+                      className={`style-pill-btn ${colorStyle === 'glass' ? 'active' : ''}`}
+                      onClick={() => setColorStyle('glass')}
+                      title="Frosted Acrylic Glass"
+                    >
+                      Glass
+                    </button>
+                  </div>
+                </div>
+
+                {/* 16 Palette Swatches */}
+                <div className="color-palette-grid">
+                  {COLOR_PRESETS.map((c) => {
+                    const isDynamic = c.id === 'dynamic';
+                    const isActive = selectedColor === c.id;
+                    const displayBg = isDynamic ? (currentSong.spotifyColor || albumColor || 'linear-gradient(135deg, #1db954, #191414)') : c.bg;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={`palette-swatch-btn ${isActive ? 'active' : ''}`}
+                        onClick={() => setSelectedColor(c.id)}
+                        title={c.label}
+                      >
+                        <span
+                          className={`palette-swatch-circle ${isDynamic ? 'dynamic-swatch' : ''}`}
+                          style={{ background: displayBg }}
+                        >
+                          {isActive && <Check size={12} className="swatch-check" />}
+                        </span>
+                        <span className="palette-swatch-name">{c.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Color Wheel & Hex Picker */}
+                <div className="custom-color-picker-box">
+                  <div className="custom-color-left">
+                    <div className="color-input-wrapper">
+                      <input
+                        type="color"
+                        id="customColorInput"
+                        value={customColor}
+                        onChange={(e) => {
+                          setCustomColor(e.target.value);
+                          setSelectedColor('custom');
+                        }}
+                        className="native-color-input"
+                      />
+                      <label htmlFor="customColorInput" className="color-circle-preview" style={{ background: customColor }}>
+                        <Pipette size={13} />
+                      </label>
+                    </div>
+                    <div className="hex-input-group">
+                      <span className="hex-prefix">#</span>
+                      <input
+                        type="text"
+                        value={customColor.replace('#', '')}
+                        maxLength={6}
+                        onChange={(e) => {
+                          const val = '#' + e.target.value.replace(/[^0-9A-Fa-f]/g, '');
+                          setCustomColor(val);
+                          setSelectedColor('custom');
+                        }}
+                        className="hex-text-input"
+                        placeholder="8B5CF6"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className={`btn-apply-custom ${selectedColor === 'custom' ? 'active' : ''}`}
+                    onClick={() => setSelectedColor('custom')}
+                  >
+                    {selectedColor === 'custom' ? '✓ Custom Active' : 'Use Custom'}
+                  </button>
                 </div>
               </div>
 
@@ -1222,8 +1380,9 @@ export default function App() {
               {/* The Floating Spotify Lyrics Card (tight bounds, 100% transparent outside rounded corners!) */}
               <div
                 ref={lyricsCardRef}
-                className={`lyrics-card theme-${theme}`}
+                className={`lyrics-card ${isLightCard() ? 'is-light-theme' : ''}`}
                 style={{
+                  background: getCardBackground(),
                   borderRadius: `${borderRadius}px`,
                   padding: `${cardPadding}px`,
                   textAlign: textAlign,
