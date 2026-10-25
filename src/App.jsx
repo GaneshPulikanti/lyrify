@@ -592,39 +592,6 @@ export default function App() {
             <p>Aesthetic Spotify Lyrics Card & Transparent Sticker Generator</p>
           </div>
         </div>
-
-        <div className="header-actions">
-          {currentSong.previewUrl && (
-            <button
-              className={`btn btn-glass ${isPlayingAudio ? 'active-playing' : ''}`}
-              onClick={handleToggleAudio}
-              title="Play 30s official Spotify audio preview"
-            >
-              {isPlayingAudio ? <Pause size={16} /> : <Play size={16} />}
-              <span>{isPlayingAudio ? 'Pause' : 'Play Preview'}</span>
-            </button>
-          )}
-
-          <button
-            className="btn btn-secondary"
-            onClick={() => handleCopyStory(format === 'sticker')}
-            disabled={isExporting}
-            title="Copy transparent card to clipboard"
-          >
-            <Copy size={16} />
-            <span>Copy Sticker</span>
-          </button>
-
-          <button
-            className="btn btn-primary"
-            onClick={() => handleExportPNG(format === 'sticker')}
-            disabled={isExporting}
-            title="Download transparent PNG (zero white background outside rounded corners)"
-          >
-            <Download size={16} />
-            <span>{format === 'sticker' ? 'Export Transparent Card' : 'Export Image'}</span>
-          </button>
-        </div>
       </header>
 
       {/* URL Input & Presets Section */}
