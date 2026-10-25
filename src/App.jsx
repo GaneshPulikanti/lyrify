@@ -57,9 +57,7 @@ export default function App() {
 
   // --- Tip & Monetization State ---
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
-  const [coffeeUrl, setCoffeeUrl] = useState(() => {
-    return localStorage.getItem('lyrify_coffee_url') || 'https://buymeacoffee.com';
-  });
+  const coffeeUrl = 'https://buymeacoffee.com/ganeshpulikanti';
 
   // Refs
   const exportFrameRef = useRef(null);
@@ -1420,6 +1418,18 @@ export default function App() {
             <p className="footer-tagline">
               Aesthetic Spotify lyrics sticker &amp; card generator for Instagram Stories, TikTok, and WhatsApp.
             </p>
+            <div className="footer-tip-row">
+              <a
+                href={coffeeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-tip-badge"
+              >
+                <Coffee size={14} />
+                <span>Support Ganesh on Buy Me a Coffee</span>
+                <ExternalLink size={12} />
+              </a>
+            </div>
           </div>
           <div className="footer-disclaimer">
             <p>
@@ -1546,20 +1556,15 @@ export default function App() {
               </a>
             </div>
 
-            <div className="tip-custom-link-box">
-              <span className="tip-link-label">Your Buy Me a Coffee / Ko-fi URL:</span>
-              <div className="tip-link-input-row">
-                <input
-                  type="text"
-                  className="tip-link-input"
-                  value={coffeeUrl}
-                  onChange={(e) => {
-                    setCoffeeUrl(e.target.value);
-                    localStorage.setItem('lyrify_coffee_url', e.target.value);
-                  }}
-                  placeholder="https://buymeacoffee.com/yourname"
-                />
+            <div className="tip-profile-badge">
+              <div className="tip-profile-avatar">
+                <Coffee size={18} />
               </div>
+              <div className="tip-profile-details">
+                <span className="tip-profile-name">Ganesh Pulikanti</span>
+                <span className="tip-profile-handle">buymeacoffee.com/ganeshpulikanti</span>
+              </div>
+              <span className="tip-profile-verified">✓ Verified Creator</span>
             </div>
 
             <div className="tip-modal-footer">
@@ -1569,7 +1574,7 @@ export default function App() {
                 rel="noopener noreferrer"
                 className="btn btn-coffee btn-block"
               >
-                <span>Open Buy Me a Coffee Page</span>
+                <span>Support on Buy Me a Coffee</span>
                 <ExternalLink size={15} />
               </a>
             </div>
