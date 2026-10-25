@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and Editor files
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Scratch and test exports (keep git repository clean)
+scratch/
+scratch_*
+*.png
+*.jpg
+*.jpeg
+!public/*.png
+!public/*.jpg
+!public/*.jpeg
+!public/*.svg
