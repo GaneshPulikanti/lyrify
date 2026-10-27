@@ -11,12 +11,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    let track = req.query?.track;
+    let track = req.query?.track || req.query?.title;
     let artist = req.query?.artist;
 
     if (!track) {
       const urlObj = new URL(req.url, 'http://localhost');
-      track = urlObj.searchParams.get('track');
+      track = urlObj.searchParams.get('track') || urlObj.searchParams.get('title');
       artist = urlObj.searchParams.get('artist');
     }
 

@@ -3,7 +3,7 @@ import {
   Play, Pause, Download, Copy, Sparkles, Check, Star,
   Search, Sliders, Music, Layout, Image as ImageIcon,
   Type, AlignLeft, AlignCenter, RefreshCw, X, Plus, Layers,
-  Eye, Edit3, Palette, Pipette
+  Eye, Edit3, Palette, Pipette, Languages, Loader2, Globe
 } from 'lucide-react';
 import { toPng, toBlob, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
@@ -35,6 +35,18 @@ export default function App() {
   const [lyrics, setLyrics] = useState(PRESET_SONGS[0].lyrics);
   const [selectedIndices, setSelectedIndices] = useState(PRESET_SONGS[0].selectedIndices);
   const [highlightIndex, setHighlightIndex] = useState(PRESET_SONGS[0].highlightIndex);
+
+  // --- Multi-Language & Translation Script State ---
+  const [lyricsScripts, setLyricsScripts] = useState({
+    original: PRESET_SONGS[0].lyrics,
+    romanized: PRESET_SONGS[0].lyrics,
+    translated: []
+  });
+  const [activeScript, setActiveScript] = useState('romanized'); // 'romanized' | 'original' | 'translated'
+  const [detectedLanguage, setDetectedLanguage] = useState('');
+  const [isNonLatinScript, setIsNonLatinScript] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showSubtitles, setShowSubtitles] = useState(false);
 
   // --- Search & Input State ---
   const [spotifyUrlInput, setSpotifyUrlInput] = useState('');
@@ -92,10 +104,93 @@ export default function App() {
     }, 3800);
   };
 
+  // Resolve translations & Romanized script (Spotify English letters)
+  const resolveLyricsTranslations = async (lines, autoSwitchToRomanized = true) => {
+    if (!Array.isArray(lines) || lines.length === 0) return;
+
+    const fullText = lines.join('\n');
+    const hasNonLatin = /[^\u0000-\u007F]/.test(fullText);
+
+    if (!hasNonLatin) {
+      setIsNonLatinScript(false);
+      setDetectedLanguage('English');
+      setLyricsScripts({
+        original: lines,
+        romanized: lines,
+        translated: []
+      });
+      setActiveScript('original');
+      setLyrics(lines);
+      return;
+    }
+
+    setIsNonLatinScript(true);
+    setIsTranslating(true);
+
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lines })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          const original = data.originalLines || lines;
+          const romanized = (data.romanizedLines && data.romanizedLines.length > 0) ? data.romanizedLines : original;
+          const translated = (data.translatedLines && data.translatedLines.length > 0) ? data.translatedLines : [];
+
+          setLyricsScripts({ original, romanized, translated });
+          setDetectedLanguage(data.languageName || 'Regional');
+
+          if (autoSwitchToRomanized && romanized.length > 0) {
+            setActiveScript('romanized');
+            setLyrics(romanized);
+            showToast(`✨ Detected ${data.languageName}! Switched to Spotify English letters.`);
+          } else {
+            setActiveScript('original');
+            setLyrics(original);
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Translation error:', err);
+    } finally {
+      setIsTranslating(false);
+    }
+
+    // Fallback if translation fails
+    setLyricsScripts({ original: lines, romanized: lines, translated: [] });
+    setActiveScript('original');
+    setLyrics(lines);
+  };
+
+  // Switch active lyrics script
+  const handleSwitchScript = (scriptKey) => {
+    setActiveScript(scriptKey);
+    let targetLines = lyricsScripts[scriptKey];
+    if (!targetLines || targetLines.length === 0) {
+      targetLines = lyricsScripts.original || lyrics;
+    }
+    setLyrics(targetLines);
+    const labelMap = {
+      romanized: 'English Letters (Spotify)',
+      original: `${detectedLanguage || 'Native'} Script`,
+      translated: 'English Meaning'
+    };
+    showToast(`🔤 Switched lyrics to ${labelMap[scriptKey] || scriptKey}`);
+  };
+
+  // Run on initial load to resolve default song scripts
+  useEffect(() => {
+    resolveLyricsTranslations(PRESET_SONGS[0].lyrics, true);
+  }, []);
+
   // Change active song to preset
   const handleSelectPreset = (preset) => {
     setCurrentSong(preset);
-    setLyrics(preset.lyrics);
     setSelectedIndices(preset.selectedIndices);
     setHighlightIndex(preset.highlightIndex);
     if (audioRef.current) {
@@ -103,6 +198,7 @@ export default function App() {
       setIsPlayingAudio(false);
     }
     showToast(`Loaded "${preset.title}" by ${preset.artist}`);
+    resolveLyricsTranslations(preset.lyrics, true);
   };
 
   // Fetch song details from Spotify URL & Lyrics
@@ -181,7 +277,6 @@ export default function App() {
       };
 
       setCurrentSong(newSong);
-      setLyrics(fetchedLyrics);
       setSelectedIndices(newSong.selectedIndices);
       setHighlightIndex(newSong.highlightIndex);
       setSpotifyUrlInput('');
@@ -190,6 +285,9 @@ export default function App() {
         audioRef.current.pause();
         setIsPlayingAudio(false);
       }
+
+      // Automatically translate / Romanize non-Latin songs to Spotify English letters
+      resolveLyricsTranslations(fetchedLyrics, true);
     } catch (err) {
       console.error(err);
       showToast(`❌ Error: ${err.message || 'Failed to fetch song'}`);
@@ -253,12 +351,12 @@ export default function App() {
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
     if (lines.length > 0) {
-      setLyrics(lines);
       setSelectedIndices(lines.map((_, i) => i).slice(0, 5));
       setHighlightIndex(0);
       setIsCustomLyricsOpen(false);
       setCustomLyricsText('');
       showToast('✍️ Custom lyrics applied to card!');
+      resolveLyricsTranslations(lines, true);
     }
   };
 
@@ -711,6 +809,69 @@ export default function App() {
           {/* TAB 1: LYRICS SELECTOR */}
           {activeTab === 'lyrics' && (
             <div className="tab-pane">
+              {/* Script / Language Switcher (Spotify English Letters / Native Script / English Meaning) */}
+              {(isNonLatinScript || detectedLanguage) && (
+                <div className="lyrics-script-switcher">
+                  <div className="script-switcher-header">
+                    <span className="script-label">
+                      <Languages size={15} /> Multi-Language & Script:
+                    </span>
+                    {isTranslating ? (
+                      <span className="translating-indicator">
+                        <Loader2 size={13} className="spin-icon" /> Converting...
+                      </span>
+                    ) : (
+                      <span className="script-badge-detected">
+                        {detectedLanguage} Detected
+                      </span>
+                    )}
+                  </div>
+                  <div className="script-pills-group">
+                    <button
+                      type="button"
+                      className={`script-pill-btn ${activeScript === 'romanized' ? 'active' : ''}`}
+                      onClick={() => handleSwitchScript('romanized')}
+                      title="Display English alphabet pronunciation letters like on Spotify"
+                    >
+                      <span className="pill-icon">🔤</span>
+                      <span className="pill-text">English Letters (Spotify)</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`script-pill-btn ${activeScript === 'original' ? 'active' : ''}`}
+                      onClick={() => handleSwitchScript('original')}
+                      title="Display original native script"
+                    >
+                      <span className="pill-icon">🇮🇳</span>
+                      <span className="pill-text">{detectedLanguage || 'Native'} Script</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`script-pill-btn ${activeScript === 'translated' ? 'active' : ''}`}
+                      onClick={() => handleSwitchScript('translated')}
+                      title="Display English meaning translation"
+                    >
+                      <span className="pill-icon">📖</span>
+                      <span className="pill-text">English Meaning</span>
+                    </button>
+                  </div>
+                  {lyricsScripts.translated && lyricsScripts.translated.length > 0 && activeScript !== 'translated' && (
+                    <div className="bilingual-toggle-row">
+                      <label className="bilingual-switch-label">
+                        <input
+                          type="checkbox"
+                          checked={showSubtitles}
+                          onChange={(e) => setShowSubtitles(e.target.checked)}
+                        />
+                        <span className="bilingual-toggle-text">
+                          ✨ <strong>Subtitle Mode:</strong> Show English meaning under each line on card
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="lyrics-header-toolbar">
                 <div className="lyrics-summary">
                   <span><strong>{selectedIndices.length}</strong> lines selected</span>
@@ -1410,7 +1571,12 @@ export default function App() {
                         key={idx}
                         className={`card-lyric-line ${item.isHighlighted ? 'highlight' : ''}`}
                       >
-                        {item.text}
+                        <div className="card-lyric-main-text">{item.text}</div>
+                        {showSubtitles && lyricsScripts.translated && lyricsScripts.translated[item.index] && (
+                          <div className="card-lyric-sub-text">
+                            {lyricsScripts.translated[item.index]}
+                          </div>
+                        )}
                       </div>
                     ))
                   ) : (

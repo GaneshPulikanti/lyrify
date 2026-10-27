@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import imageProxyHandler from './api/image-proxy.js';
 import spotifyHandler from './api/spotify.js';
 import lyricsHandler from './api/lyrics.js';
+import translateHandler from './api/translate.js';
 
 export default defineConfig({
   server: {
@@ -29,6 +30,11 @@ export default defineConfig({
 
           if (urlObj.pathname === '/api/lyrics') {
             await lyricsHandler(req, res);
+            return;
+          }
+
+          if (urlObj.pathname === '/api/translate') {
+            await translateHandler(req, res);
             return;
           }
 

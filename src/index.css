@@ -479,6 +479,127 @@ input, textarea, select {
   gap: 1.25rem;
 }
 
+/* Lyrics Script & Multi-Language Switcher Toolbar */
+.lyrics-script-switcher {
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.08), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(29, 185, 84, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+}
+
+.script-switcher-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.script-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.translating-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--spotify-green);
+  font-weight: 600;
+}
+
+.script-badge-detected {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--spotify-green);
+  background: rgba(29, 185, 84, 0.15);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+}
+
+.script-pills-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.script-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.script-pill-btn:hover {
+  background: var(--bg-surface-hover);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.script-pill-btn.active {
+  background: var(--spotify-green);
+  color: #000000;
+  font-weight: 700;
+  border-color: var(--spotify-green);
+  box-shadow: 0 0 14px rgba(29, 185, 84, 0.4);
+}
+
+.script-pill-btn .pill-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.bilingual-toggle-row {
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.bilingual-switch-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bilingual-switch-label input[type="checkbox"] {
+  accent-color: var(--spotify-green);
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.bilingual-toggle-text {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.bilingual-toggle-text strong {
+  color: #fff;
+}
+
 /* Tab 1: Lyrics Selector */
 .lyrics-header-toolbar {
   display: flex;
@@ -1708,6 +1829,34 @@ input, textarea, select {
   text-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
   transform: scale(1.02);
   transform-origin: left;
+}
+
+.card-lyric-main-text {
+  display: block;
+}
+
+.card-lyric-sub-text {
+  display: block;
+  font-size: 0.65em;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+  margin-top: 0.18rem;
+  letter-spacing: normal;
+  line-height: 1.35;
+}
+
+.card-lyric-line.highlight .card-lyric-sub-text {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: none;
+}
+
+.lyrics-card.is-light-theme .card-lyric-sub-text {
+  color: rgba(0, 0, 0, 0.52);
+}
+
+.lyrics-card.is-light-theme .card-lyric-line.highlight .card-lyric-sub-text {
+  color: rgba(0, 0, 0, 0.78);
 }
 
 /* Card Footer */
