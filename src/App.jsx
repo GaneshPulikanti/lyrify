@@ -505,30 +505,12 @@ export default function App() {
     return cleanCanvas;
   };
 
-  // Monetag Direct Ad Link (Zone 12131596) - Paused for clean screen recording
-  const ADS_PAUSED_FOR_RECORDING = true;
-  const MONETAG_DIRECT_LINK = 'https://uplcm.com/4/12131596';
-
-  const triggerDirectAd = () => {
-    if (ADS_PAUSED_FOR_RECORDING) return;
-    try {
-      const lastAd = parseInt(sessionStorage.getItem('lyrify_monetag_ad') || '0', 10);
-      const now = Date.now();
-      // Polite 45s cooldown between ad popups to protect UX and guarantee browser pop-up permissions
-      if (now - lastAd > 45 * 1000) {
-        sessionStorage.setItem('lyrify_monetag_ad', now.toString());
-        // Synchronous call in direct user gesture to bypass iOS/Chrome popup blockers
-        window.open(MONETAG_DIRECT_LINK, '_blank', 'noopener,noreferrer');
-      }
-    } catch (e) {
-      console.debug('Monetag direct link suppressed:', e);
-    }
-  };
+  // Monetag Direct Ad Link (Zone 12131596) - COMPLETELY DISABLED FOR SCREEN RECORDING
+  // const MONETAG_DIRECT_LINK = 'https://uplcm.com/4/12131596';
+  // const triggerDirectAd = () => { ... };
 
   // Export to Ultra High-Res PNG (Guarantees transparent background outside rounded corners in sticker mode!)
   const handleExportPNG = async (forceSticker = false) => {
-    // Open Monetag direct link in background tab on user export
-    triggerDirectAd();
     const isSticker = forceSticker || format === 'sticker';
     setIsExporting(true);
     const qualityLabel = exportQuality === 4 ? 'Ultra HD 4K (4x)' : 'Full HD (3x)';
@@ -563,8 +545,6 @@ export default function App() {
 
   // Copy to Clipboard (Copies transparent PNG blob in Ultra HD for Instagram Stories)
   const handleCopyStory = async (forceSticker = false) => {
-    // Open Monetag direct link in background tab on copy
-    triggerDirectAd();
     const isSticker = forceSticker || format === 'sticker';
     setIsExporting(true);
     const qualityLabel = exportQuality === 4 ? 'Ultra HD 4K' : 'Full HD';
