@@ -1726,6 +1726,38 @@ input, textarea, select {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
+/* Real Frosted Acrylic Glassmorphism (Liquid Glass) */
+.lyrics-card.style-glass {
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
+              inset 0 1px 1px rgba(255, 255, 255, 0.42),
+              inset 0 0 24px rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Specular gloss reflection across the top of the glass card */
+.lyrics-card.style-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.lyrics-card.style-solid {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.lyrics-card.style-gradient {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
 /* Light Theme Contrast Support (when pure white or very light color is selected) */
 .lyrics-card.is-light-theme {
   color: #0f172a !important;

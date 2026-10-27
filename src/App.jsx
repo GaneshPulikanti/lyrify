@@ -670,26 +670,55 @@ export default function App() {
     img.src = currentSong.coverArt;
   }, [currentSong]);
 
+  // Helper to convert hex / rgb color to rgba with specific alpha
+  const hexToRgba = (color, alpha = 0.35) => {
+    if (!color) return `rgba(255, 255, 255, ${alpha})`;
+    if (color.startsWith('rgb')) {
+      if (color.startsWith('rgba')) {
+        return color.replace(/[\d\.]+\)$/g, `${alpha})`);
+      }
+      return color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+    }
+    let c = color.replace('#', '');
+    if (c.length === 3) {
+      c = c.split('').map((ch) => ch + ch).join('');
+    }
+    const num = parseInt(c, 16);
+    if (isNaN(num)) return `rgba(255, 255, 255, ${alpha})`;
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   // Compute Card Background (dynamic, custom, gradient, solid, or glass)
   const getCardBackground = () => {
-    if (selectedColor === 'dynamic') {
-      const base = currentSong.spotifyColor || albumColor || 'rgb(35, 45, 60)';
-      if (colorStyle === 'solid') return base;
-      if (colorStyle === 'glass') return `linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))`;
-      return `linear-gradient(145deg, ${base}, #08090d 88%)`;
+    const isDynamic = selectedColor === 'dynamic';
+    const baseColor = isDynamic
+      ? (currentSong.spotifyColor || albumColor || 'rgb(35, 45, 60)')
+      : (selectedColor === 'custom' ? customColor : selectedColor);
+
+    if (colorStyle === 'solid') {
+      return baseColor;
     }
 
-    const hex = selectedColor === 'custom' ? customColor : selectedColor;
-    if (colorStyle === 'solid') {
-      return hex;
-    }
     if (colorStyle === 'glass') {
-      return `linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04))`;
+      if (baseColor === '#000000') {
+        return `linear-gradient(135deg, rgba(25, 28, 36, 0.72) 0%, rgba(12, 14, 18, 0.48) 100%)`;
+      }
+      if (baseColor === '#ffffff') {
+        return `linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.22) 100%)`;
+      }
+      // Rich tinted frosted glass with depth
+      const cTop = hexToRgba(baseColor, 0.42);
+      const cBottom = hexToRgba(baseColor, 0.16);
+      return `linear-gradient(135deg, ${cTop} 0%, ${cBottom} 100%)`;
     }
-    // Gradient mode:
-    if (hex === '#000000') return '#000000';
-    if (hex === '#ffffff') return '#ffffff';
-    return `linear-gradient(145deg, ${hex}, #08090d 88%)`;
+
+    // Default: Gradient mode
+    if (baseColor === '#000000') return '#000000';
+    if (baseColor === '#ffffff') return '#ffffff';
+    return `linear-gradient(145deg, ${baseColor}, #08090d 88%)`;
   };
 
   const isLightCard = () => {
@@ -1584,7 +1613,7 @@ export default function App() {
               {/* The Floating Spotify Lyrics Card (tight bounds, 100% transparent outside rounded corners!) */}
               <div
                 ref={lyricsCardRef}
-                className={`lyrics-card ${isLightCard() ? 'is-light-theme' : ''}`}
+                className={`lyrics-card style-${colorStyle} ${isLightCard() ? 'is-light-theme' : ''}`}
                 style={{
                   background: getCardBackground(),
                   borderRadius: `${borderRadius}px`,
