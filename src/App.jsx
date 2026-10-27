@@ -809,96 +809,96 @@ export default function App() {
 
           {/* TAB 1: LYRICS SELECTOR */}
           {activeTab === 'lyrics' && (
-            <div className="tab-pane">
-              {/* Script / Language Switcher (Spotify English Letters / Native Script / English Meaning) */}
-              {(isNonLatinScript || detectedLanguage) && (
-                <div className="lyrics-script-switcher">
-                  <div className="script-switcher-header">
-                    <span className="script-label">
-                      <Languages size={15} /> Multi-Language & Script:
-                    </span>
-                    {isTranslating ? (
-                      <span className="translating-indicator">
-                        <Loader2 size={13} className="spin-icon" /> Converting...
-                      </span>
-                    ) : (
-                      <span className="script-badge-detected">
-                        {detectedLanguage} Detected
-                      </span>
-                    )}
-                  </div>
-                  <div className="script-pills-group">
-                    <button
-                      type="button"
-                      className={`script-pill-btn ${activeScript === 'romanized' ? 'active' : ''}`}
-                      onClick={() => handleSwitchScript('romanized')}
-                      title="Display English alphabet pronunciation letters like on Spotify"
-                    >
-                      <span className="pill-icon">🔤</span>
-                      <span className="pill-text">English Letters (Spotify)</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`script-pill-btn ${activeScript === 'original' ? 'active' : ''}`}
-                      onClick={() => handleSwitchScript('original')}
-                      title="Display original native script"
-                    >
-                      <span className="pill-icon">🇮🇳</span>
-                      <span className="pill-text">{detectedLanguage || 'Native'} Script</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`script-pill-btn ${activeScript === 'translated' ? 'active' : ''}`}
-                      onClick={() => handleSwitchScript('translated')}
-                      title="Display English meaning translation"
-                    >
-                      <span className="pill-icon">📖</span>
-                      <span className="pill-text">English Meaning</span>
-                    </button>
-                  </div>
-                  {lyricsScripts.translated && lyricsScripts.translated.length > 0 && activeScript !== 'translated' && (
-                    <div className="bilingual-toggle-row">
-                      <label className="bilingual-switch-label">
-                        <input
-                          type="checkbox"
-                          checked={showSubtitles}
-                          onChange={(e) => setShowSubtitles(e.target.checked)}
-                        />
-                        <span className="bilingual-toggle-text">
-                          ✨ <strong>Subtitle Mode:</strong> Show English meaning under each line on card
-                        </span>
-                      </label>
+            <div className="tab-pane tab-pane-lyrics">
+              <div className="lyrics-top-sticky-controls">
+                {/* Script / Language Switcher (Spotify English Letters / Native Script / English Meaning) */}
+                {(isNonLatinScript || detectedLanguage) && (
+                  <div className="lyrics-script-switcher">
+                    <div className="script-switcher-header">
+                      <div className="script-header-left">
+                        <Languages size={14} className="script-globe-icon" />
+                        <span className="script-label">Language &amp; Script:</span>
+                        {isTranslating ? (
+                          <span className="translating-indicator">
+                            <Loader2 size={12} className="spin-icon" /> Converting...
+                          </span>
+                        ) : (
+                          <span className="script-badge-detected">
+                            {detectedLanguage}
+                          </span>
+                        )}
+                      </div>
+                      {lyricsScripts.translated && lyricsScripts.translated.length > 0 && activeScript !== 'translated' && (
+                        <label className="bilingual-switch-label" title="Show English meaning under each line on card">
+                          <input
+                            type="checkbox"
+                            checked={showSubtitles}
+                            onChange={(e) => setShowSubtitles(e.target.checked)}
+                          />
+                          <span className="bilingual-toggle-text">Subtitles</span>
+                        </label>
+                      )}
                     </div>
-                  )}
-                </div>
-              )}
+                    <div className="script-pills-group">
+                      <button
+                        type="button"
+                        className={`script-pill-btn ${activeScript === 'romanized' ? 'active' : ''}`}
+                        onClick={() => handleSwitchScript('romanized')}
+                        title="Display English alphabet letters (Spotify style)"
+                      >
+                        <span className="pill-icon">🔤</span>
+                        <span className="pill-text">English Letters (Spotify)</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`script-pill-btn ${activeScript === 'original' ? 'active' : ''}`}
+                        onClick={() => handleSwitchScript('original')}
+                        title="Display original native script"
+                      >
+                        <span className="pill-icon">🇮🇳</span>
+                        <span className="pill-text">{detectedLanguage || 'Native'} Script</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`script-pill-btn ${activeScript === 'translated' ? 'active' : ''}`}
+                        onClick={() => handleSwitchScript('translated')}
+                        title="Display English meaning translation"
+                      >
+                        <span className="pill-icon">📖</span>
+                        <span className="pill-text">English Meaning</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-              <div className="lyrics-header-toolbar">
-                <div className="lyrics-summary">
-                  <span><strong>{selectedIndices.length}</strong> lines selected</span>
-                  <span className="no-limit-tag">No 4-Line Limit!</span>
+                <div className="lyrics-header-toolbar">
+                  <div className="lyrics-summary">
+                    <span><strong>{selectedIndices.length}</strong> selected</span>
+                    <span className="no-limit-tag">No Limit!</span>
+                  </div>
+                  <div className="lyrics-quick-actions">
+                    <button type="button" className="btn-chip" onClick={handleSelectAll}>All</button>
+                    <button type="button" className="btn-chip" onClick={handleSelectChorus}>Chorus</button>
+                    <button type="button" className="btn-chip" onClick={handleClearSelection}>Clear</button>
+                    <button
+                      type="button"
+                      className="btn-chip btn-chip-highlight"
+                      onClick={() => {
+                        setCustomLyricsText(lyrics.join('\n'));
+                        setIsCustomLyricsOpen(true);
+                      }}
+                    >
+                      <Plus size={12} /> Add / Edit
+                    </button>
+                  </div>
                 </div>
-                <div className="lyrics-quick-actions">
-                  <button type="button" className="btn-chip" onClick={handleSelectAll}>Select All</button>
-                  <button type="button" className="btn-chip" onClick={handleSelectChorus}>Top Chorus</button>
-                  <button type="button" className="btn-chip" onClick={handleClearSelection}>Clear</button>
-                  <button
-                    type="button"
-                    className="btn-chip btn-chip-highlight"
-                    onClick={() => {
-                      setCustomLyricsText(lyrics.join('\n'));
-                      setIsCustomLyricsOpen(true);
-                    }}
-                  >
-                    <Plus size={13} /> Edit / Add Custom
-                  </button>
+
+                <div className="lyrics-hint-compact">
+                  💡 Tap lines to toggle on card • Click ⭐ to glow punchline
                 </div>
               </div>
 
-              <p className="lyrics-hint">
-                💡 Tap any lines in order to include them. Click the <strong>⭐ Star</strong> to make a punchline glow!
-              </p>
-
+              {/* Scrollable Lyrics List (Takes all remaining height!) */}
               <div className="lyrics-list-container">
                 {lyrics.map((line, idx) => {
                   const isSelected = selectedIndices.includes(idx);
