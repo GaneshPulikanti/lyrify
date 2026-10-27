@@ -505,10 +505,12 @@ export default function App() {
     return cleanCanvas;
   };
 
-  // Monetag Direct Ad Link (Zone 12131596)
+  // Monetag Direct Ad Link (Zone 12131596) - Paused for clean screen recording
+  const ADS_PAUSED_FOR_RECORDING = true;
   const MONETAG_DIRECT_LINK = 'https://uplcm.com/4/12131596';
 
   const triggerDirectAd = () => {
+    if (ADS_PAUSED_FOR_RECORDING) return;
     try {
       const lastAd = parseInt(sessionStorage.getItem('lyrify_monetag_ad') || '0', 10);
       const now = Date.now();
