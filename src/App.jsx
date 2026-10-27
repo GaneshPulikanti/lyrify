@@ -3,7 +3,8 @@ import {
   Play, Pause, Download, Copy, Sparkles, Check, Star,
   Search, Sliders, Music, Layout, Image as ImageIcon,
   Type, AlignLeft, AlignCenter, RefreshCw, X, Plus, Layers,
-  Eye, Edit3, Palette, Pipette, Languages, Loader2, Globe
+  Eye, Edit3, Palette, Pipette, Languages, Loader2, Globe,
+  MessageSquarePlus, Send
 } from 'lucide-react';
 import { toPng, toBlob, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
@@ -90,6 +91,57 @@ export default function App() {
   // --- Custom Lyrics Modal State ---
   const [isCustomLyricsOpen, setIsCustomLyricsOpen] = useState(false);
   const [customLyricsText, setCustomLyricsText] = useState('');
+
+  // --- User Feedback Modal State ---
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [feedbackCategory, setFeedbackCategory] = useState('feature'); // 'feature' | 'bug' | 'design' | 'song' | 'other'
+  const [feedbackRating, setFeedbackRating] = useState('love'); // 'love' | 'good' | 'neutral' | 'needs_work'
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackContact, setFeedbackContact] = useState('');
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+
+  // Submit Feedback Handler
+  const handleSubmitFeedback = async (e) => {
+    if (e) e.preventDefault();
+    if (!feedbackMessage.trim()) {
+      showToast('⚠️ Please write a suggestion or feedback before submitting');
+      return;
+    }
+
+    setIsSubmittingFeedback(true);
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: feedbackCategory,
+          rating: feedbackRating,
+          message: feedbackMessage.trim(),
+          contact: feedbackContact.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        confetti({
+          particleCount: 55,
+          spread: 60,
+          origin: { y: 0.65 }
+        });
+        showToast('🎉 Thank you! Your feedback helps us make Lyrify better!');
+        setFeedbackMessage('');
+        setFeedbackContact('');
+        setIsFeedbackOpen(false);
+      } else {
+        showToast('❌ ' + (data.error || 'Could not send feedback'));
+      }
+    } catch (err) {
+      console.error('Feedback error:', err);
+      showToast('❌ Failed to send feedback. Please try again.');
+    } finally {
+      setIsSubmittingFeedback(false);
+    }
+  };
 
   // Refs
   const exportFrameRef = useRef(null);
@@ -741,6 +793,18 @@ export default function App() {
             <h1>Lyrify <span className="badge-studio">Studio</span></h1>
             <p>Aesthetic Spotify Lyrics Card & Transparent Sticker Generator</p>
           </div>
+        </div>
+
+        <div className="header-right-actions">
+          <button
+            type="button"
+            className="header-feedback-btn"
+            onClick={() => setIsFeedbackOpen(true)}
+            title="Help improve Lyrify — give feedback"
+          >
+            <MessageSquarePlus size={15} />
+            <span>Feedback</span>
+          </button>
         </div>
       </header>
 
@@ -1828,6 +1892,149 @@ export default function App() {
                 Apply Lyrics
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Feedback Trigger Pill */}
+      <button
+        type="button"
+        className="floating-feedback-pill"
+        onClick={() => setIsFeedbackOpen(true)}
+        title="Help improve Lyrify — send feedback or suggestions"
+      >
+        <MessageSquarePlus size={16} />
+        <span>Feedback</span>
+      </button>
+
+      {/* User Feedback Modal */}
+      {isFeedbackOpen && (
+        <div className="modal-overlay" onClick={() => setIsFeedbackOpen(false)}>
+          <div className="modal-card feedback-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="feedback-modal-title-group">
+                <div className="feedback-icon-badge">
+                  <MessageSquarePlus size={20} />
+                </div>
+                <div>
+                  <h3>Help Us Improve Lyrify</h3>
+                  <p className="feedback-modal-subtitle">Share your ideas, bugs, design suggestions, or song requests!</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setIsFeedbackOpen(false)}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitFeedback} className="feedback-modal-body">
+              {/* Category Pills */}
+              <div className="feedback-form-group">
+                <label className="feedback-field-label">Category</label>
+                <div className="feedback-type-pills">
+                  {[
+                    { id: 'feature', label: '💡 Feature Idea' },
+                    { id: 'bug', label: '🐞 Bug Report' },
+                    { id: 'design', label: '🎨 Design & UI' },
+                    { id: 'song', label: '🎵 Song Request' },
+                    { id: 'other', label: '💭 Other' }
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      className={`feedback-pill-btn ${feedbackCategory === cat.id ? 'active' : ''}`}
+                      onClick={() => setFeedbackCategory(cat.id)}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rating Experience */}
+              <div className="feedback-form-group">
+                <label className="feedback-field-label">How is your experience so far?</label>
+                <div className="feedback-rating-pills">
+                  {[
+                    { id: 'love', emoji: '😍', label: 'Love it!' },
+                    { id: 'good', emoji: '😊', label: 'Good' },
+                    { id: 'neutral', emoji: '😐', label: 'Okay' },
+                    { id: 'needs_work', emoji: '🙁', label: 'Needs work' }
+                  ].map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      className={`feedback-rating-btn ${feedbackRating === r.id ? 'active' : ''}`}
+                      onClick={() => setFeedbackRating(r.id)}
+                    >
+                      <span className="rating-emoji">{r.emoji}</span>
+                      <span className="rating-label">{r.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Message Textarea */}
+              <div className="feedback-form-group">
+                <label className="feedback-field-label">
+                  Your Suggestions / Thoughts <span className="required-star">*</span>
+                </label>
+                <textarea
+                  className="feedback-textarea"
+                  rows={4}
+                  value={feedbackMessage}
+                  onChange={(e) => setFeedbackMessage(e.target.value)}
+                  placeholder="What can we improve? (e.g. font styles, transparent export options, UI layout, or songs to add)..."
+                  required
+                />
+              </div>
+
+              {/* Contact (Optional) */}
+              <div className="feedback-form-group">
+                <label className="feedback-field-label">
+                  Your Email or Reddit / Twitter handle <span className="optional-tag">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  className="feedback-input"
+                  value={feedbackContact}
+                  onChange={(e) => setFeedbackContact(e.target.value)}
+                  placeholder="e.g. ganesh@example.com or @ganesh (if you'd like a reply)"
+                />
+              </div>
+
+              {/* Modal Actions */}
+              <div className="modal-actions feedback-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsFeedbackOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-feedback-submit"
+                  disabled={isSubmittingFeedback || !feedbackMessage.trim()}
+                >
+                  {isSubmittingFeedback ? (
+                    <>
+                      <Loader2 size={15} className="spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={15} />
+                      <span>Submit Feedback</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
