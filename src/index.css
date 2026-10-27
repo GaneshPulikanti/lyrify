@@ -1505,6 +1505,55 @@ input, textarea, select {
   transform: scale(1.15);
 }
 
+.sim-colorwheel-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.native-backdrop-color-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.sim-btn.sim-btn-colorwheel {
+  position: relative;
+  width: 19px;
+  height: 19px;
+  background: conic-gradient(from 0deg, #ff0000, #ff8800, #ffff00, #00ff00, #00ffff, #0000ff, #8800ff, #ff0088, #ff0000);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.sim-btn.sim-btn-colorwheel:hover {
+  transform: scale(1.18);
+  border-color: #ffffff;
+}
+
+.sim-btn.sim-btn-colorwheel.active {
+  border-color: var(--spotify-green);
+  box-shadow: 0 0 10px var(--spotify-green);
+  transform: scale(1.22);
+}
+
+.colorwheel-swatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
 /* Viewport Area */
 .preview-viewport {
   border: 1px solid var(--border-subtle);

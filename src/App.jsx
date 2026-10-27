@@ -80,7 +80,8 @@ export default function App() {
   const [cardPadding, setCardPadding] = useState(32);
 
   // --- Stage Simulator & Export State ---
-  const [simBackdrop, setSimBackdrop] = useState('checkerboard'); // 'checkerboard' | 'dark' | 'photo' | 'light'
+  const [simBackdrop, setSimBackdrop] = useState('checkerboard'); // 'checkerboard' | 'dark' | 'photo' | 'light' | 'custom'
+  const [customBackdropColor, setCustomBackdropColor] = useState('#4f46e5');
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [audioProgress, setAudioProgress] = useState(42);
   const [toasts, setToasts] = useState([]);
@@ -1123,7 +1124,8 @@ export default function App() {
                       { id: 'album-blur', label: 'Album Blur' },
                       { id: 'mesh', label: 'Ambient Mesh' },
                       { id: 'minimal', label: 'Deep OLED' },
-                      { id: 'vinyl', label: 'Vinyl Studio' }
+                      { id: 'vinyl', label: 'Vinyl Studio' },
+                      { id: 'custom-color', label: 'Color Wheel' }
                     ].map((bg) => (
                       <button
                         key={bg.id}
@@ -1135,6 +1137,38 @@ export default function App() {
                       </button>
                     ))}
                   </div>
+                  {bgStyle === 'custom-color' && (
+                    <div className="custom-color-picker-box" style={{ marginTop: '0.75rem' }}>
+                      <div className="custom-color-left">
+                        <div className="color-input-wrapper">
+                          <input
+                            type="color"
+                            id="storyCustomBgInput"
+                            value={customBackdropColor}
+                            onChange={(e) => setCustomBackdropColor(e.target.value)}
+                            className="native-color-input"
+                          />
+                          <label htmlFor="storyCustomBgInput" className="color-circle-preview" style={{ background: customBackdropColor }}>
+                            <Pipette size={13} />
+                          </label>
+                        </div>
+                        <div className="hex-input-group">
+                          <span className="hex-prefix">#</span>
+                          <input
+                            type="text"
+                            value={customBackdropColor.replace('#', '')}
+                            maxLength={6}
+                            onChange={(e) => {
+                              const val = '#' + e.target.value.replace(/[^0-9A-Fa-f]/g, '');
+                              setCustomBackdropColor(val);
+                            }}
+                            className="hex-text-input"
+                            placeholder="4F46E5"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1425,13 +1459,6 @@ export default function App() {
                 />
                 <button
                   type="button"
-                  className={`sim-btn ${simBackdrop === 'photo' ? 'active' : ''}`}
-                  data-sim="photo"
-                  onClick={() => setSimBackdrop('photo')}
-                  title="Photo Story Simulator"
-                />
-                <button
-                  type="button"
                   className={`sim-btn ${simBackdrop === 'dark' ? 'active' : ''}`}
                   data-sim="dark"
                   onClick={() => setSimBackdrop('dark')}
@@ -1444,6 +1471,35 @@ export default function App() {
                   onClick={() => setSimBackdrop('light')}
                   title="Light Story Simulator"
                 />
+                <button
+                  type="button"
+                  className={`sim-btn ${simBackdrop === 'photo' ? 'active' : ''}`}
+                  data-sim="photo"
+                  onClick={() => setSimBackdrop('photo')}
+                  title="Photo Story Simulator"
+                />
+                <div className="sim-colorwheel-wrapper" title={`Color Wheel: Pick custom backdrop color (${customBackdropColor})`}>
+                  <input
+                    type="color"
+                    id="customBackdropColorInput"
+                    value={customBackdropColor}
+                    onChange={(e) => {
+                      setCustomBackdropColor(e.target.value);
+                      setSimBackdrop('custom');
+                    }}
+                    className="native-backdrop-color-input"
+                  />
+                  <label
+                    htmlFor="customBackdropColorInput"
+                    className={`sim-btn sim-btn-colorwheel ${simBackdrop === 'custom' ? 'active' : ''}`}
+                    title={`Color Wheel (${customBackdropColor})`}
+                  >
+                    <span
+                      className="colorwheel-swatch"
+                      style={{ background: customBackdropColor }}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div className="stage-action-buttons">
@@ -1473,7 +1529,17 @@ export default function App() {
           </div>
 
           {/* Interactive Canvas Viewport */}
-          <div className={`preview-viewport sim-${simBackdrop}`}>
+          <div
+            className={`preview-viewport sim-${simBackdrop}`}
+            style={
+              simBackdrop === 'custom'
+                ? {
+                    background: `radial-gradient(circle at 50% 50%, ${customBackdropColor}e6 0%, ${customBackdropColor} 100%)`,
+                    backgroundImage: 'none'
+                  }
+                : undefined
+            }
+          >
 
             {/* The Master Export Frame */}
             <div
@@ -1487,6 +1553,7 @@ export default function App() {
                   className={`ambient-layer ${bgStyle}`}
                   style={{
                     backgroundImage: bgStyle === 'album-blur' ? `url(${getCoverSrc(currentSong.coverArt)})` : undefined,
+                    background: bgStyle === 'custom-color' ? customBackdropColor : undefined,
                     '--theme-accent': currentSong.spotifyColor || '#1db954'
                   }}
                 />
