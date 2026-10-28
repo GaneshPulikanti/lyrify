@@ -384,26 +384,5 @@ export const PRESET_SONGS = [
       "Never gonna make you cry, never gonna say goodbye",
       "Never gonna tell a lie and hurt you"
     ]
-  },
-  {
-    "id": "7wAqH3eB7vHj4n5Y1u5W4G",
-    "title": "Samajavaragamana",
-    "artist": "Sid Sriram, Thaman S",
-    "album": "Ala Vaikunthapurramuloo",
-    "coverArt": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80",
-    "spotifyColor": "rgb(234, 88, 12)",
-    "previewUrl": "",
-    "durationMs": 222000,
-    "selectedIndices": [0, 1, 2, 3],
-    "highlightIndex": 0,
-    "lyrics": [
-      "సామజవరగమన",
-      "నిను చూసి ఆగగలనా",
-      "మనసేమో నిన్నే కోరెనులే",
-      "నీ కాళ్ళని పట్టుకు వదలనన్నవి",
-      "చూడే నా కళ్ళు",
-      "ఆ చూపులనల్లా తొక్కుకు వెళ్ళకు",
-      "దయలేదా అసలు"
-    ]
   }
 ];
