@@ -2487,24 +2487,32 @@ input, textarea, select {
 
 /* Card Footer */
 .card-footer {
+  width: 100% !important;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
   margin-top: auto;
+  align-self: stretch !important;
+  align-items: stretch !important;
+  box-sizing: border-box;
 }
 
 .card-progress-container {
+  width: 100% !important;
+  align-self: stretch !important;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  box-sizing: border-box;
 }
 
 .progress-bar-track {
-  width: 100%;
+  width: 100% !important;
   height: 4px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
   position: relative;
+  box-sizing: border-box;
 }
 
 .progress-bar-fill {
@@ -2525,11 +2533,14 @@ input, textarea, select {
 }
 
 .progress-timestamps {
+  width: 100% !important;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.72rem;
   font-family: var(--font-mono);
   color: rgba(255, 255, 255, 0.55);
+  box-sizing: border-box;
 }
 
 .spotify-pill {
@@ -2665,9 +2676,13 @@ input, textarea, select {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Dynamic Card Alignment (Harmonizes footer badges & highlights with lyrics text alignment) */
+/* Dynamic Card Alignment (Harmonizes footer badges & highlights with lyrics text alignment while keeping progress bar full-width) */
 .lyrics-card[data-align="center"] .card-footer {
-  align-items: center;
+  align-items: stretch !important;
+}
+.lyrics-card[data-align="center"] .card-progress-container {
+  width: 100% !important;
+  align-self: stretch !important;
 }
 .lyrics-card[data-align="center"] .spotify-pill,
 .lyrics-card[data-align="center"] .apple-pill,
@@ -2680,7 +2695,11 @@ input, textarea, select {
 }
 
 .lyrics-card[data-align="right"] .card-footer {
-  align-items: flex-end;
+  align-items: stretch !important;
+}
+.lyrics-card[data-align="right"] .card-progress-container {
+  width: 100% !important;
+  align-self: stretch !important;
 }
 .lyrics-card[data-align="right"] .spotify-pill,
 .lyrics-card[data-align="right"] .apple-pill,
@@ -2693,7 +2712,11 @@ input, textarea, select {
 }
 
 .lyrics-card[data-align="left"] .card-footer {
-  align-items: flex-start;
+  align-items: stretch !important;
+}
+.lyrics-card[data-align="left"] .card-progress-container {
+  width: 100% !important;
+  align-self: stretch !important;
 }
 .lyrics-card[data-align="left"] .spotify-pill,
 .lyrics-card[data-align="left"] .apple-pill,
@@ -2824,10 +2847,13 @@ input, textarea, select {
 
 /* Optional Progress Bar container inside official Apple layout */
 .apple-shelf-progress-container {
+  width: 100% !important;
+  align-self: stretch !important;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   margin-bottom: 0.5rem;
+  box-sizing: border-box;
 }
 
 /* Dedicated Bottom Track Shelf (Seamless iOS Share Layout) */
