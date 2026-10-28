@@ -30,19 +30,24 @@ const COLOR_PRESETS = [
   { id: '#ffffff', label: 'Pure White', bg: '#ffffff' }
 ];
 
-// Curated 10 Aesthetic Typography Google Fonts
+// Curated 10 High-Contrast Distinct Fonts (Including Spotify Official Styles)
 const FONT_PRESETS = [
-  { id: 'Plus Jakarta Sans', label: 'Spotify Sans', sub: 'Iconic & Bold', font: 'Plus Jakarta Sans' },
-  { id: 'Playfair Display', label: 'Playfair Serif', sub: 'Poetic & Luxury', font: 'Playfair Display' },
-  { id: 'Outfit', label: 'Outfit Grotesk', sub: 'Modern Geometric', font: 'Outfit' },
-  { id: 'Caveat', label: 'Caveat Script', sub: 'Handwritten Indie', font: 'Caveat' },
-  { id: 'Dancing Script', label: 'Dancing Cursive', sub: 'Romantic Calligraphy', font: 'Dancing Script' },
-  { id: 'Cinzel', label: 'Cinzel Roman', sub: 'Cinematic High-End', font: 'Cinzel' },
-  { id: 'JetBrains Mono', label: 'Retro Mono', sub: 'Lo-Fi Typewriter', font: 'JetBrains Mono' },
-  { id: 'Syne', label: 'Syne Poster', sub: 'Bold Streetwear', font: 'Syne' },
-  { id: 'Inter', label: 'Inter Sans', sub: 'Crisp Minimalist', font: 'Inter' },
-  { id: 'Kalam', label: 'Kalam Brush', sub: 'Casual Diary Note', font: 'Kalam' }
+  { id: 'Plus Jakarta Sans', label: 'Spotify Sans', sub: 'Iconic Circular Sans', css: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" },
+  { id: 'Oswald', label: 'Spotify Wrapped', sub: 'Heavy Bold Condensed', css: "'Oswald', Impact, sans-serif" },
+  { id: 'Playfair Display', label: 'Spotify Editorial', sub: 'Poetic Luxury Serif', css: "'Playfair Display', Georgia, serif" },
+  { id: 'Caveat', label: 'Handwritten Pen', sub: 'Casual Indie Note', css: "'Caveat', cursive" },
+  { id: 'Dancing Script', label: 'Romantic Script', sub: 'Flowing Cursive', css: "'Dancing Script', cursive" },
+  { id: 'Permanent Marker', label: 'Street Marker', sub: 'Bold Grunge Brush', css: "'Permanent Marker', cursive" },
+  { id: 'JetBrains Mono', label: 'Retro Typewriter', sub: 'Lo-Fi Monospace', css: "'JetBrains Mono', monospace" },
+  { id: 'Syne', label: 'Avant-Garde Display', sub: 'Ultra-Wide Poster', css: "'Syne', sans-serif" },
+  { id: 'Alfa Slab One', label: 'Vintage Vinyl', sub: '70s Chunky Slab', css: "'Alfa Slab One', serif" },
+  { id: 'Kalam', label: 'Diary Brush', sub: 'Casual Expressive Note', css: "'Kalam', cursive" }
 ];
+
+const getFontCss = (id) => {
+  const match = FONT_PRESETS.find((f) => f.id === id);
+  return match ? match.css : `'${id}', sans-serif`;
+};
 
 // Curated Aesthetic Text & Lyrics Colors
 const TEXT_COLOR_PRESETS = [
@@ -108,6 +113,8 @@ export default function App() {
   // --- Details & Toggles State ---
   const [platform, setPlatform] = useState('spotify'); // 'spotify' | 'apple'
   const [appleAudioBadge, setAppleAudioBadge] = useState('both'); // 'both' | 'lossless' | 'atmos' | 'hires' | 'none'
+  const [appleBrandStyle, setAppleBrandStyle] = useState('badge'); // 'badge' | 'pill' | 'share' | 'custom'
+  const [customAppleBrandImage, setCustomAppleBrandImage] = useState(null);
   const [coverStyle, setCoverStyle] = useState('rounded'); // 'rounded' | 'vinyl' | 'circle' | 'none'
   const [showBarcode, setShowBarcode] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
@@ -733,8 +740,8 @@ export default function App() {
   };
 
   // Generate aesthetic barcode bars (Spotify) and equalizer bars (Apple Music)
-  const barcodeBars = [8, 14, 6, 18, 12, 5, 16, 10, 18, 7, 13, 17, 9, 15, 6, 12, 18, 10, 6, 14, 8];
-  const appleEqBars = [10, 18, 14, 26, 12, 30, 18, 24, 8, 16, 28, 20, 14, 8];
+  const barcodeBars = [8, 14, 6, 18, 12, 16, 10, 18, 13, 17, 9, 14, 8];
+  const appleEqBars = [10, 18, 14, 24, 12, 28, 18, 22, 12, 16, 20, 10];
 
   const getElapsedTimeString = () => {
     const totalMs = currentSong.durationMs || 204000;
@@ -1438,9 +1445,9 @@ export default function App() {
                       type="button"
                       className={`font-btn ${fontFamily === font.id ? 'active' : ''}`}
                       onClick={() => setFontFamily(font.id)}
-                      style={{ fontFamily: font.id }}
+                      style={{ fontFamily: font.css }}
                     >
-                      <span style={{ fontFamily: font.id }}>{font.label}</span>
+                      <span style={{ fontFamily: font.css }}>{font.label}</span>
                       <small>{font.sub}</small>
                     </button>
                   ))}
@@ -1613,9 +1620,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Apple Music Audio Quality Badges (Only visible when Apple Music is active) */}
+              {/* Apple Music Audio Quality Badges & Branding (Only visible when Apple Music is active) */}
               {platform === 'apple' && (
-                <div className="control-group">
+                <>
+                  <div className="control-group">
                   <div className="label-with-meta">
                     <label className="control-label">Apple Audio Badges</label>
                     <span className="meta-tip">Lossless &amp; Atmos Badges</span>
@@ -1639,7 +1647,74 @@ export default function App() {
                     ))}
                   </div>
                 </div>
-              )}
+
+                {/* Apple Music Branding Template Style */}
+                <div className="control-group">
+                  <div className="label-with-meta">
+                    <label className="control-label">Apple Branding Template</label>
+                    <span className="meta-tip">{appleBrandStyle === 'custom' ? 'Custom Image' : 'Official Template'}</span>
+                  </div>
+                  <div className="chip-toggle-group">
+                    {[
+                      { id: 'badge', label: 'Gradient ♫ Badge' },
+                      { id: 'pill', label: ' Music Pill' },
+                      { id: 'share', label: 'Listen on ' },
+                      { id: 'custom', label: 'Upload Mine' }
+                    ].map((style) => (
+                      <button
+                        key={style.id}
+                        type="button"
+                        className={`chip-toggle ${appleBrandStyle === style.id ? 'active' : ''}`}
+                        onClick={() => setAppleBrandStyle(style.id)}
+                      >
+                        {style.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {appleBrandStyle === 'custom' && (
+                    <div className="custom-brand-upload-box" style={{ marginTop: '0.65rem' }}>
+                      <input
+                        type="file"
+                        id="customAppleBrandFileInput"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (evt) => {
+                              setCustomAppleBrandImage(evt.target.result);
+                              showToast('✨ Custom Apple branding image loaded!');
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <label htmlFor="customAppleBrandFileInput" className="btn btn-secondary btn-sm" style={{ width: '100%', justifyContent: 'center', cursor: 'pointer' }}>
+                        <ImageIcon size={14} />
+                        <span>{customAppleBrandImage ? 'Change Custom Template Image' : 'Upload Apple Template Image...'}</span>
+                      </label>
+                      {customAppleBrandImage && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginTop: '0.5rem', padding: '0.4rem 0.6rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
+                          <img src={customAppleBrandImage} alt="Custom Preview" style={{ height: '22px', maxWidth: '100px', objectFit: 'contain' }} />
+                          <button
+                            type="button"
+                            className="btn-chip"
+                            onClick={() => {
+                              setCustomAppleBrandImage(null);
+                              setAppleBrandStyle('badge');
+                            }}
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
               {/* Editable Track Metadata */}
               <div className="control-group">
@@ -2015,6 +2090,7 @@ export default function App() {
               {/* The Floating Spotify / Apple Music Lyrics Card (tight bounds, 100% transparent outside rounded corners!) */}
               <div
                 ref={lyricsCardRef}
+                data-align={textAlign}
                 className={`lyrics-card style-${colorStyle} platform-${platform} ${isLightCard() ? 'is-light-theme' : ''} ${lyricsTextColor !== 'auto' ? 'has-custom-text-color' : ''}`}
                 style={{
                   background: getCardBackground(),
@@ -2059,10 +2135,13 @@ export default function App() {
                       {/* Apple Music Audio Quality Badges */}
                       {platform === 'apple' && appleAudioBadge !== 'none' && (
                         <div className="apple-audio-badges">
-                          {(appleAudioBadge === 'both' || appleAudioBadge === 'lossless') && (
+                          {appleAudioBadge === 'both' && (
+                            <span className="apple-badge-pill">Lossless · Dolby Atmos</span>
+                          )}
+                          {appleAudioBadge === 'lossless' && (
                             <span className="apple-badge-pill">Lossless</span>
                           )}
-                          {(appleAudioBadge === 'both' || appleAudioBadge === 'atmos') && (
+                          {appleAudioBadge === 'atmos' && (
                             <span className="apple-badge-pill">Dolby Atmos</span>
                           )}
                           {appleAudioBadge === 'hires' && (
@@ -2115,7 +2194,7 @@ export default function App() {
                 <div
                   className="card-lyrics-content"
                   style={{
-                    fontFamily: fontFamily,
+                    fontFamily: getFontCss(fontFamily),
                     fontSize: `${fontSize}px`
                   }}
                 >
@@ -2168,12 +2247,46 @@ export default function App() {
                   {/* Platform Badge */}
                   {showBadge && (
                     platform === 'apple' ? (
-                      <div className="apple-pill">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
-                        </svg>
-                        <span>Music</span>
-                      </div>
+                      customAppleBrandImage ? (
+                        <div className="apple-custom-brand">
+                          <img src={customAppleBrandImage} alt="Apple Music" className="apple-custom-brand-img" />
+                        </div>
+                      ) : appleBrandStyle === 'badge' ? (
+                        <div className="apple-badge-branded">
+                          <div className="apple-music-icon-squircle">
+                            <svg viewBox="0 0 28 28" width="18" height="18" fill="none">
+                              <defs>
+                                <linearGradient id="appleMusicGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="#fa2d55" />
+                                  <stop offset="50%" stopColor="#fc3c44" />
+                                  <stop offset="100%" stopColor="#c41c30" />
+                                </linearGradient>
+                              </defs>
+                              <rect width="28" height="28" rx="6.5" fill="url(#appleMusicGradCard)" />
+                              <path
+                                fill="#ffffff"
+                                d="M19.4 6.8c-.3-.1-.7 0-.9.2l-7.2 2.5c-.3.1-.5.4-.5.7v9.4c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3v-7.3l6.5-2.2v5.7c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3V7.5c0-.4-.2-.6-.6-.7z"
+                              />
+                            </svg>
+                          </div>
+                          <span className="apple-brand-name">Apple Music</span>
+                        </div>
+                      ) : appleBrandStyle === 'share' ? (
+                        <div className="apple-pill apple-pill-share">
+                          <span className="apple-share-prefix">Listen on</span>
+                          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                          </svg>
+                          <span>Music</span>
+                        </div>
+                      ) : (
+                        <div className="apple-pill">
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                          </svg>
+                          <span>Music</span>
+                        </div>
+                      )
                     ) : (
                       <div className="spotify-pill">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
