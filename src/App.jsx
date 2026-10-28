@@ -4,7 +4,7 @@ import {
   Search, Sliders, Music, Layout, Image as ImageIcon,
   Type, AlignLeft, AlignCenter, RefreshCw, X, Plus, Layers,
   Eye, Edit3, Palette, Pipette, Languages, Loader2, Globe,
-  MessageSquarePlus, Send
+  MessageSquarePlus, Send, User
 } from 'lucide-react';
 import { toPng, toBlob, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
@@ -30,12 +30,44 @@ const COLOR_PRESETS = [
   { id: '#ffffff', label: 'Pure White', bg: '#ffffff' }
 ];
 
+// Curated 10 Aesthetic Typography Google Fonts
+const FONT_PRESETS = [
+  { id: 'Plus Jakarta Sans', label: 'Spotify Sans', sub: 'Iconic & Bold', font: 'Plus Jakarta Sans' },
+  { id: 'Playfair Display', label: 'Playfair Serif', sub: 'Poetic & Luxury', font: 'Playfair Display' },
+  { id: 'Outfit', label: 'Outfit Grotesk', sub: 'Modern Geometric', font: 'Outfit' },
+  { id: 'Caveat', label: 'Caveat Script', sub: 'Handwritten Indie', font: 'Caveat' },
+  { id: 'Dancing Script', label: 'Dancing Cursive', sub: 'Romantic Calligraphy', font: 'Dancing Script' },
+  { id: 'Cinzel', label: 'Cinzel Roman', sub: 'Cinematic High-End', font: 'Cinzel' },
+  { id: 'JetBrains Mono', label: 'Retro Mono', sub: 'Lo-Fi Typewriter', font: 'JetBrains Mono' },
+  { id: 'Syne', label: 'Syne Poster', sub: 'Bold Streetwear', font: 'Syne' },
+  { id: 'Inter', label: 'Inter Sans', sub: 'Crisp Minimalist', font: 'Inter' },
+  { id: 'Kalam', label: 'Kalam Brush', sub: 'Casual Diary Note', font: 'Kalam' }
+];
+
+// Curated Aesthetic Text & Lyrics Colors
+const TEXT_COLOR_PRESETS = [
+  { id: 'auto', label: 'Auto Theme', color: 'auto' },
+  { id: '#ffffff', label: 'Pure White', color: '#ffffff' },
+  { id: '#fef3c7', label: 'Warm Ivory', color: '#fef3c7' },
+  { id: '#1ed760', label: 'Spotify Neon', color: '#1ed760' },
+  { id: '#38bdf8', label: 'Electric Blue', color: '#38bdf8' },
+  { id: '#fbbf24', label: 'Golden Honey', color: '#fbbf24' },
+  { id: '#f472b6', label: 'Pastel Rose', color: '#f472b6' },
+  { id: '#c084fc', label: 'Soft Lavender', color: '#c084fc' },
+  { id: '#fb923c', label: 'Sunset Coral', color: '#fb923c' },
+  { id: '#0f172a', label: 'Pitch Black', color: '#0f172a' }
+];
+
 export default function App() {
   // --- Song & Lyrics State ---
   const [currentSong, setCurrentSong] = useState(PRESET_SONGS[0]);
   const [lyrics, setLyrics] = useState(PRESET_SONGS[0].lyrics);
   const [selectedIndices, setSelectedIndices] = useState(PRESET_SONGS[0].selectedIndices);
   const [highlightIndex, setHighlightIndex] = useState(PRESET_SONGS[0].highlightIndex);
+
+  // --- Inline Lyric Editing State ---
+  const [editingLineIndex, setEditingLineIndex] = useState(null);
+  const [editingLineText, setEditingLineText] = useState('');
 
   // --- Multi-Language & Translation Script State ---
   const [lyricsScripts, setLyricsScripts] = useState({
@@ -69,6 +101,8 @@ export default function App() {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [fontSize, setFontSize] = useState(24);
   const [textAlign, setTextAlign] = useState('left');
+  const [lyricsTextColor, setLyricsTextColor] = useState('auto'); // 'auto' | hex string | 'custom'
+  const [customTextColor, setCustomTextColor] = useState('#ffffff');
   const [exportQuality, setExportQuality] = useState(4); // 4 = Ultra HD 4K (1640px+), 3 = Full HD 1080p+ (1230px+)
 
   // --- Details & Toggles State ---
@@ -394,6 +428,40 @@ export default function App() {
   const handleClearSelection = () => {
     setSelectedIndices([]);
     setHighlightIndex(null);
+  };
+  // Inline Lyric line editing
+  const handleStartEditLine = (index, e) => {
+    if (e) e.stopPropagation();
+    setEditingLineIndex(index);
+    setEditingLineText(lyrics[index] || '');
+  };
+
+  const handleSaveEditLine = (index, e) => {
+    if (e) e.stopPropagation();
+    if (!editingLineText.trim()) return;
+    const updated = [...lyrics];
+    updated[index] = editingLineText.trim();
+    setLyrics(updated);
+    setLyricsScripts((prev) => ({
+      ...prev,
+      [activeScript]: updated
+    }));
+    setEditingLineIndex(null);
+    showToast('✏️ Lyric line updated!');
+  };
+
+  const handleCancelEditLine = (e) => {
+    if (e) e.stopPropagation();
+    setEditingLineIndex(null);
+  };
+
+  // Track info editing (Song Title & Artist)
+  const handleUpdateTitle = (newTitle) => {
+    setCurrentSong((prev) => ({ ...prev, title: newTitle }));
+  };
+
+  const handleUpdateArtist = (newArtist) => {
+    setCurrentSong((prev) => ({ ...prev, artist: newArtist }));
   };
 
   // Custom lyrics save
@@ -778,6 +846,21 @@ export default function App() {
     return hex === '#ffffff';
   };
 
+  // Resolved dynamic text colors
+  const getActivePrimaryTextColor = () => {
+    if (lyricsTextColor === 'auto') {
+      return isLightCard() ? '#111827' : '#ffffff';
+    }
+    if (lyricsTextColor === 'custom') {
+      return customTextColor;
+    }
+    return lyricsTextColor;
+  };
+
+  const activePrimaryTextColor = getActivePrimaryTextColor();
+  const activeSubTextColor = hexToRgba(activePrimaryTextColor, 0.72);
+  const activeMutedTextColor = hexToRgba(activePrimaryTextColor, 0.52);
+
   return (
     <div className="app-root">
 
@@ -1009,7 +1092,7 @@ export default function App() {
                 </div>
 
                 <div className="lyrics-hint-compact">
-                  💡 Tap lines to toggle on card • Click ⭐ to glow punchline
+                  💡 Tap lines to toggle • Double-click or ✏️ to edit text • Click ⭐ to glow punchline
                 </div>
               </div>
 
@@ -1018,24 +1101,78 @@ export default function App() {
                 {lyrics.map((line, idx) => {
                   const isSelected = selectedIndices.includes(idx);
                   const isHighlighted = highlightIndex === idx;
+                  const isEditingThisLine = editingLineIndex === idx;
                   return (
                     <div
                       key={idx}
-                      className={`lyric-item ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}`}
-                      onClick={() => handleToggleLine(idx)}
+                      className={`lyric-item ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''} ${isEditingThisLine ? 'is-editing' : ''}`}
+                      onClick={() => {
+                        if (!isEditingThisLine) handleToggleLine(idx);
+                      }}
                     >
                       <div className="lyric-checkbox">
                         {isSelected && <Check size={12} strokeWidth={3} />}
                       </div>
-                      <span className="lyric-text">{line}</span>
-                      <button
-                        type="button"
-                        className={`btn-star-highlight ${isHighlighted ? 'active' : ''}`}
-                        onClick={(e) => handleSetHighlight(idx, e)}
-                        title="Highlight this punchline"
-                      >
-                        <Star size={15} fill={isHighlighted ? '#ffc107' : 'none'} />
-                      </button>
+
+                      {isEditingThisLine ? (
+                        <div className="lyric-inline-editor" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="text"
+                            className="lyric-inline-input"
+                            value={editingLineText}
+                            autoFocus
+                            onChange={(e) => setEditingLineText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveEditLine(idx, e);
+                              if (e.key === 'Escape') handleCancelEditLine(e);
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="btn-inline-action btn-inline-save"
+                            onClick={(e) => handleSaveEditLine(idx, e)}
+                            title="Save changes"
+                          >
+                            <Check size={13} strokeWidth={3} />
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-inline-action btn-inline-cancel"
+                            onClick={handleCancelEditLine}
+                            title="Cancel"
+                          >
+                            <X size={13} strokeWidth={3} />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span
+                            className="lyric-text"
+                            onDoubleClick={(e) => handleStartEditLine(idx, e)}
+                            title="Double-click to edit line text"
+                          >
+                            {line}
+                          </span>
+                          <div className="lyric-item-actions">
+                            <button
+                              type="button"
+                              className="btn-line-action btn-line-edit"
+                              onClick={(e) => handleStartEditLine(idx, e)}
+                              title="Edit this lyric line"
+                            >
+                              <Edit3 size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className={`btn-star-highlight ${isHighlighted ? 'active' : ''}`}
+                              onClick={(e) => handleSetHighlight(idx, e)}
+                              title="Highlight this punchline"
+                            >
+                              <Star size={15} fill={isHighlighted ? '#ffc107' : 'none'} />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   );
                 })}
@@ -1046,45 +1183,6 @@ export default function App() {
           {/* TAB 2: AESTHETIC STYLE */}
           {activeTab === 'style' && (
             <div className="tab-pane">
-
-              {/* Aspect Ratio / Format */}
-              <div className="control-group">
-                <label className="control-label">Export Format</label>
-                <div className="format-grid">
-                  <button
-                    type="button"
-                    className={`format-btn ${format === 'sticker' ? 'active' : ''}`}
-                    onClick={() => setFormat('sticker')}
-                  >
-                    <div className="format-preview format-sticker-icon">🏷️</div>
-                    <span>Transparent Card (Cropped)</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`format-btn ${format === 'story' ? 'active' : ''}`}
-                    onClick={() => setFormat('story')}
-                  >
-                    <div className="format-preview format-9-16"></div>
-                    <span>IG Story (9:16)</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`format-btn ${format === 'square' ? 'active' : ''}`}
-                    onClick={() => setFormat('square')}
-                  >
-                    <div className="format-preview format-1-1"></div>
-                    <span>Feed Square (1:1)</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`format-btn ${format === 'portrait' ? 'active' : ''}`}
-                    onClick={() => setFormat('portrait')}
-                  >
-                    <div className="format-preview format-4-5"></div>
-                    <span>Portrait (4:5)</span>
-                  </button>
-                </div>
-              </div>
 
               {/* Card Color Panel */}
               <div className="control-group">
@@ -1191,7 +1289,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Custom Rounded Corners Slider */}
+              {/* Card Shape & Dimensions */}
               <div className="control-group">
                 <div className="label-with-meta">
                   <label className="control-label">Card Rounded Corners</label>
@@ -1228,6 +1326,22 @@ export default function App() {
                     Ultra Round (48px)
                   </button>
                 </div>
+              </div>
+
+              {/* Card Inner Spacing */}
+              <div className="control-group">
+                <div className="label-with-meta">
+                  <label className="control-label">Card Inner Spacing</label>
+                  <span className="meta-tip">{cardPadding}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="20"
+                  max="44"
+                  value={cardPadding}
+                  onChange={(e) => setCardPadding(Number(e.target.value))}
+                  className="slider"
+                />
               </div>
 
               {/* Background Atmosphere for full story format */}
@@ -1287,16 +1401,17 @@ export default function App() {
                 </div>
               )}
 
-              {/* Typography */}
+              {/* Typography Selection (10 Curated Aesthetic Fonts) */}
               <div className="control-group">
-                <label className="control-label">Lyrics Typography</label>
+                <div className="label-with-meta">
+                  <div className="panel-title-row">
+                    <Type size={16} className="panel-icon" />
+                    <label className="control-label">Lyrics Typography</label>
+                  </div>
+                  <span className="meta-tip">{fontFamily}</span>
+                </div>
                 <div className="font-selector-grid">
-                  {[
-                    { id: 'Plus Jakarta Sans', label: 'Spotify Sans', sub: 'Clean & Bold' },
-                    { id: 'Playfair Display', label: 'Playfair Serif', sub: 'Poetic Elegance' },
-                    { id: 'Outfit', label: 'Outfit Grotesk', sub: 'Modern Geometric' },
-                    { id: 'Caveat', label: 'Caveat Script', sub: 'Handwritten Indie' }
-                  ].map((font) => (
+                  {FONT_PRESETS.map((font) => (
                     <button
                       key={font.id}
                       type="button"
@@ -1304,10 +1419,88 @@ export default function App() {
                       onClick={() => setFontFamily(font.id)}
                       style={{ fontFamily: font.id }}
                     >
-                      <span>{font.label}</span>
+                      <span style={{ fontFamily: font.id }}>{font.label}</span>
                       <small>{font.sub}</small>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Lyrics & Text Color Selection */}
+              <div className="control-group">
+                <div className="label-with-meta">
+                  <div className="panel-title-row">
+                    <Palette size={15} className="panel-icon" />
+                    <label className="control-label">Lyrics &amp; Text Color</label>
+                  </div>
+                  <span className="meta-tip">{lyricsTextColor === 'auto' ? 'Auto Theme' : lyricsTextColor}</span>
+                </div>
+
+                <div className="text-color-palette-grid">
+                  {TEXT_COLOR_PRESETS.map((tc) => {
+                    const isAuto = tc.id === 'auto';
+                    const isActive = lyricsTextColor === tc.id;
+                    return (
+                      <button
+                        key={tc.id}
+                        type="button"
+                        className={`text-color-swatch-btn ${isActive ? 'active' : ''}`}
+                        onClick={() => setLyricsTextColor(tc.id)}
+                        title={tc.label}
+                      >
+                        <span
+                          className={`text-color-circle ${isAuto ? 'auto-circle' : ''}`}
+                          style={{ background: isAuto ? 'linear-gradient(135deg, #ffffff 50%, #0f172a 50%)' : tc.color }}
+                        >
+                          {isActive && <Check size={11} className="swatch-check" />}
+                        </span>
+                        <span className="text-color-name">{tc.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Text Color Picker Box */}
+                <div className="custom-color-picker-box" style={{ marginTop: '0.65rem' }}>
+                  <div className="custom-color-left">
+                    <div className="color-input-wrapper">
+                      <input
+                        type="color"
+                        id="customTextColorInput"
+                        value={customTextColor}
+                        onChange={(e) => {
+                          setCustomTextColor(e.target.value);
+                          setLyricsTextColor('custom');
+                        }}
+                        className="native-color-input"
+                      />
+                      <label htmlFor="customTextColorInput" className="color-circle-preview" style={{ background: customTextColor }}>
+                        <Pipette size={13} />
+                      </label>
+                    </div>
+                    <div className="hex-input-group">
+                      <span className="hex-prefix">#</span>
+                      <input
+                        type="text"
+                        value={customTextColor.replace('#', '')}
+                        maxLength={6}
+                        onChange={(e) => {
+                          const val = '#' + e.target.value.replace(/[^0-9A-Fa-f]/g, '');
+                          setCustomTextColor(val);
+                          setLyricsTextColor('custom');
+                        }}
+                        className="hex-text-input"
+                        placeholder="FFFFFF"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className={`btn-apply-custom ${lyricsTextColor === 'custom' ? 'active' : ''}`}
+                    onClick={() => setLyricsTextColor('custom')}
+                  >
+                    {lyricsTextColor === 'custom' ? '✓ Custom Active' : 'Use Custom'}
+                  </button>
                 </div>
               </div>
 
@@ -1349,36 +1542,52 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Export Resolution & Clarity */}
-              <div className="control-group">
-                <div className="label-with-meta">
-                  <label className="control-label">Export Clarity & Resolution</label>
-                  <span className="meta-tip">{exportQuality === 4 ? '4X ULTRA HD' : '3X FULL HD'}</span>
-                </div>
-                <div className="chip-toggle-group">
-                  <button
-                    type="button"
-                    className={`chip-toggle ${exportQuality === 4 ? 'active' : ''}`}
-                    onClick={() => setExportQuality(4)}
-                  >
-                    💎 4K Ultra HD (1640px+ Super-Res)
-                  </button>
-                  <button
-                    type="button"
-                    className={`chip-toggle ${exportQuality === 3 ? 'active' : ''}`}
-                    onClick={() => setExportQuality(3)}
-                  >
-                    ✨ Full HD (1230px+ Crisp)
-                  </button>
-                </div>
-              </div>
-
             </div>
           )}
 
-          {/* TAB 3: CARD DETAILS & TOGGLES */}
+          {/* TAB 3: CARD DETAILS & EDITABLE METADATA */}
           {activeTab === 'details' && (
             <div className="tab-pane">
+
+              {/* Editable Track Metadata */}
+              <div className="control-group">
+                <div className="label-with-meta">
+                  <div className="panel-title-row">
+                    <Music size={15} className="panel-icon" />
+                    <label className="control-label">Track Title &amp; Artist</label>
+                  </div>
+                  <span className="meta-tip">Direct Text Edit</span>
+                </div>
+                <div className="track-edit-inputs">
+                  <div className="track-input-row">
+                    <label className="track-input-label">Song Title</label>
+                    <div className="input-with-icon">
+                      <Music size={14} className="input-icon" />
+                      <input
+                        type="text"
+                        className="track-text-input"
+                        value={currentSong.title}
+                        onChange={(e) => handleUpdateTitle(e.target.value)}
+                        placeholder="Song Title..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="track-input-row">
+                    <label className="track-input-label">Artist Name</label>
+                    <div className="input-with-icon">
+                      <User size={14} className="input-icon" />
+                      <input
+                        type="text"
+                        className="track-text-input"
+                        value={currentSong.artist}
+                        onChange={(e) => handleUpdateArtist(e.target.value)}
+                        placeholder="Artist Name..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="control-group">
                 <label className="control-label">Album Art Style</label>
@@ -1446,19 +1655,6 @@ export default function App() {
 
                 <label className="switch-row">
                   <span className="switch-label">
-                    <strong>Card Drop Shadow (Preview)</strong>
-                    <small>Turn off for flat export</small>
-                  </span>
-                  <input
-                    type="checkbox"
-                    className="custom-switch"
-                    checked={showShadow}
-                    onChange={(e) => setShowShadow(e.target.checked)}
-                  />
-                </label>
-
-                <label className="switch-row">
-                  <span className="switch-label">
                     <strong>Song Artist & Subtitle</strong>
                     <small>Display artist name below title</small>
                   </span>
@@ -1469,22 +1665,6 @@ export default function App() {
                     onChange={(e) => setShowArtist(e.target.checked)}
                   />
                 </label>
-              </div>
-
-              {/* Card Padding */}
-              <div className="control-group">
-                <div className="label-with-meta">
-                  <label className="control-label">Card Inner Spacing</label>
-                  <span className="meta-tip">{cardPadding}px</span>
-                </div>
-                <input
-                  type="range"
-                  min="20"
-                  max="44"
-                  value={cardPadding}
-                  onChange={(e) => setCardPadding(Number(e.target.value))}
-                  className="slider"
-                />
               </div>
 
             </div>
@@ -1537,6 +1717,14 @@ export default function App() {
                   title="1:1 Square post"
                 >
                   <span>⏹️ Square</span>
+                </button>
+                <button
+                  type="button"
+                  className={`format-pill-btn ${format === 'portrait' ? 'active' : ''}`}
+                  onClick={() => setFormat('portrait')}
+                  title="4:5 Portrait post"
+                >
+                  <span>🖼️ Portrait</span>
                 </button>
               </div>
             </div>
@@ -1677,7 +1865,7 @@ export default function App() {
               {/* The Floating Spotify Lyrics Card (tight bounds, 100% transparent outside rounded corners!) */}
               <div
                 ref={lyricsCardRef}
-                className={`lyrics-card style-${colorStyle} ${isLightCard() ? 'is-light-theme' : ''}`}
+                className={`lyrics-card style-${colorStyle} ${isLightCard() ? 'is-light-theme' : ''} ${lyricsTextColor !== 'auto' ? 'has-custom-text-color' : ''}`}
                 style={{
                   background: getCardBackground(),
                   borderRadius: `${borderRadius}px`,
@@ -1685,7 +1873,10 @@ export default function App() {
                   textAlign: textAlign,
                   boxShadow: (showShadow && format !== 'sticker') ? undefined : 'none',
                   '--card-padding': `${cardPadding}px`,
-                  '--lyrics-font-size': `${fontSize}px`
+                  '--lyrics-font-size': `${fontSize}px`,
+                  '--lyrics-text-color': activePrimaryTextColor,
+                  '--lyrics-sub-color': activeSubTextColor,
+                  '--lyrics-muted-color': activeMutedTextColor
                 }}
               >
 
