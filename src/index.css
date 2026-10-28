@@ -2351,8 +2351,9 @@ input, textarea, select {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-top: 0.28rem;
-  flex-wrap: wrap;
+  margin: 0.15rem 0 0.1rem 0;
+  flex-wrap: nowrap;
+  max-width: 100%;
 }
 
 .apple-badge-pill {
@@ -2365,7 +2366,12 @@ input, textarea, select {
   background: rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  line-height: 1.25;
+  line-height: 1.2;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  flex-shrink: 0;
 }
 
 /* Apple Music Equalizer Wave */
@@ -2709,32 +2715,46 @@ input, textarea, select {
   gap: 1rem;
 }
 
-/* Inactive lyrics in Apple Music: soft blurred subtle ambient focus */
-.lyrics-card.platform-apple:not(.has-custom-text-color) .card-lyric-line:not(.highlight) {
-  opacity: 0.42;
-  filter: blur(0.45px);
+/* Apple Music Lyrics: Sharp, crystal-clear typography (Zero blur, full legibility) */
+.lyrics-card.platform-apple .card-lyric-line {
+  color: var(--lyrics-text-color, #ffffff);
+  opacity: 1 !important;
+  filter: none !important;
+  font-weight: 750;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.lyrics-card.platform-apple:not(.has-custom-text-color) .card-lyric-line.highlight {
-  opacity: 1;
-  filter: none;
-  font-weight: 800;
-  text-shadow: 0 2px 16px rgba(255, 255, 255, 0.35);
-  transform: scale(1.025);
+.lyrics-card.platform-apple.has-highlight .card-lyric-line:not(.highlight) {
+  opacity: 0.88 !important;
+  filter: none !important;
+}
+
+.lyrics-card.platform-apple .card-lyric-line.highlight {
+  opacity: 1 !important;
+  filter: none !important;
+  font-weight: 850;
+  color: var(--lyrics-text-color, #ffffff);
+  text-shadow: 0 2px 18px rgba(255, 255, 255, 0.45);
+  transform: scale(1.02);
   transform-origin: left;
 }
 
-.lyrics-card.platform-apple.is-light-theme:not(.has-custom-text-color) .card-lyric-line:not(.highlight) {
-  opacity: 0.4;
-  filter: blur(0.45px);
-  color: #475569;
+.lyrics-card.platform-apple.is-light-theme .card-lyric-line {
+  color: #0f172a;
+  opacity: 1 !important;
+  filter: none !important;
 }
 
-.lyrics-card.platform-apple.is-light-theme:not(.has-custom-text-color) .card-lyric-line.highlight {
-  opacity: 1;
-  filter: none;
-  color: #0f172a;
+.lyrics-card.platform-apple.is-light-theme.has-highlight .card-lyric-line:not(.highlight) {
+  opacity: 0.85 !important;
+  color: #334155;
+  filter: none !important;
+}
+
+.lyrics-card.platform-apple.is-light-theme .card-lyric-line.highlight {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #000000;
   text-shadow: 0 2px 12px rgba(15, 23, 42, 0.2);
 }
 
@@ -2775,9 +2795,15 @@ input, textarea, select {
   font-weight: 800;
   letter-spacing: -0.018em;
   color: var(--lyrics-text-color, #ffffff);
-  opacity: 0.95;
+  opacity: 1 !important;
+  filter: none !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   word-break: break-word;
+}
+
+.lyrics-card.has-highlight .apple-lyrics-section .card-lyric-line:not(.highlight) {
+  opacity: 0.88 !important;
+  filter: none !important;
 }
 
 .apple-lyrics-section .card-lyric-line.highlight {
