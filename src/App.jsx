@@ -524,7 +524,7 @@ export default function App() {
     // This bypasses any Safari/WebKit foreignObject rendering glitches with 100% reliability
     const paintDirectCover = (destCtx, destCanvas, node) => {
       try {
-        const coverImg = node.querySelector('.card-cover-wrapper img');
+        const coverImg = node.querySelector('.card-cover-wrapper img, .apple-shelf-cover-wrapper img');
         if (coverImg && (coverImg.complete || coverImg.naturalWidth > 0)) {
           const targetRect = node.getBoundingClientRect();
           const coverRect = coverImg.getBoundingClientRect();
@@ -2181,7 +2181,7 @@ export default function App() {
                 style={{
                   background: getCardBackground(),
                   borderRadius: `${borderRadius}px`,
-                  padding: (platform === 'apple' && appleLayout === 'official') ? 0 : `${cardPadding}px`,
+                  padding: `${cardPadding}px`,
                   textAlign: textAlign,
                   boxShadow: (showShadow && format !== 'sticker') ? undefined : 'none',
                   '--card-padding': `${cardPadding}px`,
@@ -2201,7 +2201,6 @@ export default function App() {
                     <div
                       className="apple-lyrics-section"
                       style={{
-                        padding: `${cardPadding}px ${cardPadding}px ${showProgress ? '14px' : `${cardPadding}px`} ${cardPadding}px`,
                         fontFamily: getFontCss(fontFamily),
                         fontSize: `${fontSize}px`,
                         textAlign: textAlign,
@@ -2231,7 +2230,7 @@ export default function App() {
 
                     {/* Optional Audio Progress Bar */}
                     {showProgress && (
-                      <div className="apple-shelf-progress-container" style={{ padding: `0 ${cardPadding}px 14px ${cardPadding}px` }}>
+                      <div className="apple-shelf-progress-container">
                         <div className="progress-bar-track">
                           <div
                             className="progress-bar-fill"
@@ -2250,12 +2249,7 @@ export default function App() {
                     )}
 
                     {/* Bottom Track Info Shelf (iOS Apple Music Share Layout) */}
-                    <div
-                      className="apple-track-shelf"
-                      style={{
-                        padding: `14px ${cardPadding}px 18px ${cardPadding}px`
-                      }}
-                    >
+                    <div className="apple-track-shelf">
                       <div className="apple-shelf-content">
                         {coverStyle !== 'none' && (
                           <div className={`apple-shelf-cover-wrapper style-${coverStyle}`}>
