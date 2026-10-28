@@ -1482,6 +1482,86 @@ input, textarea, select {
   color: #fff;
 }
 
+/* Template Platform & Branding Switcher */
+.platform-switch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+}
+
+.platform-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.platform-card-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.platform-card-btn.spotify.active {
+  background: rgba(29, 185, 84, 0.12);
+  border-color: rgba(29, 185, 84, 0.5);
+  box-shadow: 0 0 16px rgba(29, 185, 84, 0.15);
+}
+
+.platform-card-btn.apple.active {
+  background: rgba(250, 45, 72, 0.12);
+  border-color: rgba(250, 45, 72, 0.5);
+  box-shadow: 0 0 16px rgba(250, 45, 72, 0.15);
+}
+
+.platform-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.platform-card-icon.spotify-icon {
+  background: rgba(29, 185, 84, 0.2);
+  color: #1ed760;
+}
+
+.platform-card-icon.apple-icon {
+  background: rgba(250, 45, 72, 0.2);
+  color: #ff334b;
+}
+
+.platform-card-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.platform-card-meta strong {
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.platform-card-meta small {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.1rem;
+}
+
 /* Track Details Editable Inputs */
 .track-edit-inputs {
   display: flex;
@@ -1626,6 +1706,51 @@ input, textarea, select {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+}
+
+.platform-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.2rem 0.3rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.platform-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.platform-pill-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.platform-pill-btn.spotify.active {
+  color: #fff;
+  background: rgba(29, 185, 84, 0.22);
+  border-color: rgba(29, 185, 84, 0.5);
+  box-shadow: 0 0 12px rgba(29, 185, 84, 0.25);
+}
+
+.platform-pill-btn.apple.active {
+  color: #fff;
+  background: rgba(250, 45, 72, 0.22);
+  border-color: rgba(250, 45, 72, 0.5);
+  box-shadow: 0 0 12px rgba(250, 45, 72, 0.25);
 }
 
 .format-pill-group {
@@ -2022,6 +2147,27 @@ input, textarea, select {
   color: #0f172a !important;
 }
 
+.lyrics-card.is-light-theme .apple-pill {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.lyrics-card.is-light-theme .apple-badge-pill {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.lyrics-card.is-light-theme .card-apple-code {
+  background: rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.lyrics-card.is-light-theme .apple-eq-bar {
+  background: #0f172a !important;
+}
+
 .lyrics-card.is-light-theme .barcode-bar {
   background: #0f172a !important;
 }
@@ -2164,6 +2310,65 @@ input, textarea, select {
   background: rgba(255, 255, 255, 0.85);
 }
 
+/* Apple Music Audio Quality Badges */
+.apple-audio-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.28rem;
+  flex-wrap: wrap;
+}
+
+.apple-badge-pill {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  line-height: 1.25;
+}
+
+/* Apple Music Equalizer Wave */
+.card-apple-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.65rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.apple-eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 20px;
+}
+
+.apple-eq-bar {
+  width: 2.5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.88);
+  transition: height 0.2s ease;
+}
+
+.apple-eq-bar.is-playing {
+  animation: appleEqPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes appleEqPulse {
+  0% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+  100% { transform: scaleY(0.55); }
+}
+
 /* Card Lyrics Content */
 .card-lyrics-content {
   display: flex;
@@ -2298,6 +2503,63 @@ input, textarea, select {
   letter-spacing: -0.01em;
   color: #ffffff;
   align-self: flex-start;
+}
+
+.apple-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  align-self: flex-start;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Signature Apple Music Lyrics Styling */
+.lyrics-card.platform-apple .card-cover-wrapper.style-rounded {
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.lyrics-card.platform-apple .card-lyrics-content {
+  gap: 1rem;
+}
+
+/* Inactive lyrics in Apple Music: soft blurred subtle ambient focus */
+.lyrics-card.platform-apple:not(.has-custom-text-color) .card-lyric-line:not(.highlight) {
+  opacity: 0.42;
+  filter: blur(0.45px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lyrics-card.platform-apple:not(.has-custom-text-color) .card-lyric-line.highlight {
+  opacity: 1;
+  filter: none;
+  font-weight: 800;
+  text-shadow: 0 2px 16px rgba(255, 255, 255, 0.35);
+  transform: scale(1.025);
+  transform-origin: left;
+}
+
+.lyrics-card.platform-apple.is-light-theme:not(.has-custom-text-color) .card-lyric-line:not(.highlight) {
+  opacity: 0.4;
+  filter: blur(0.45px);
+  color: #475569;
+}
+
+.lyrics-card.platform-apple.is-light-theme:not(.has-custom-text-color) .card-lyric-line.highlight {
+  opacity: 1;
+  filter: none;
+  color: #0f172a;
+  text-shadow: 0 2px 12px rgba(15, 23, 42, 0.2);
 }
 
 .stage-footer-hint {
@@ -2982,6 +3244,22 @@ input, textarea, select {
   }
   .stage-toolbar-left {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .platform-pill-group {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+    padding: 0.25rem;
+  }
+  .platform-pill-btn {
+    justify-content: center;
+    padding: 0.45rem 0.35rem;
+    font-size: 0.74rem;
+    text-align: center;
   }
   .format-pill-group {
     width: 100%;

@@ -106,6 +106,8 @@ export default function App() {
   const [exportQuality, setExportQuality] = useState(4); // 4 = Ultra HD 4K (1640px+), 3 = Full HD 1080p+ (1230px+)
 
   // --- Details & Toggles State ---
+  const [platform, setPlatform] = useState('spotify'); // 'spotify' | 'apple'
+  const [appleAudioBadge, setAppleAudioBadge] = useState('both'); // 'both' | 'lossless' | 'atmos' | 'hires' | 'none'
   const [coverStyle, setCoverStyle] = useState('rounded'); // 'rounded' | 'vinyl' | 'circle' | 'none'
   const [showBarcode, setShowBarcode] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
@@ -278,6 +280,7 @@ export default function App() {
   // Change active song to preset
   const handleSelectPreset = (preset) => {
     setCurrentSong(preset);
+    setLyrics(preset.lyrics);
     setSelectedIndices(preset.selectedIndices);
     setHighlightIndex(preset.highlightIndex);
     if (audioRef.current) {
@@ -729,8 +732,26 @@ export default function App() {
     }
   };
 
-  // Generate aesthetic barcode bars
+  // Generate aesthetic barcode bars (Spotify) and equalizer bars (Apple Music)
   const barcodeBars = [8, 14, 6, 18, 12, 5, 16, 10, 18, 7, 13, 17, 9, 15, 6, 12, 18, 10, 6, 14, 8];
+  const appleEqBars = [10, 18, 14, 26, 12, 30, 18, 24, 8, 16, 28, 20, 14, 8];
+
+  const getElapsedTimeString = () => {
+    const totalMs = currentSong.durationMs || 204000;
+    const elapsedMs = Math.floor(totalMs * (audioProgress / 100));
+    const elMin = Math.floor(elapsedMs / 60000);
+    const elSec = Math.floor((elapsedMs % 60000) / 1000).toString().padStart(2, '0');
+    return `${elMin}:${elSec}`;
+  };
+
+  const getAppleRemainingTime = () => {
+    const totalMs = currentSong.durationMs || 204000;
+    const elapsedMs = Math.floor(totalMs * (audioProgress / 100));
+    const remainingMs = Math.max(0, totalMs - elapsedMs);
+    const remMin = Math.floor(remainingMs / 60000);
+    const remSec = Math.floor((remainingMs % 60000) / 1000).toString().padStart(2, '0');
+    return `-${remMin}:${remSec}`;
+  };
 
   // Selected lyrics lines
   const displayLyrics = selectedIndices.map((idx) => ({
@@ -874,7 +895,7 @@ export default function App() {
           </div>
           <div className="brand-text">
             <h1>Lyrify <span className="badge-studio">Studio</span></h1>
-            <p>Aesthetic Spotify Lyrics Card & Transparent Sticker Generator</p>
+            <p>Aesthetic Spotify &amp; Apple Music Lyrics Card &amp; Sticker Generator</p>
           </div>
         </div>
 
@@ -1549,6 +1570,77 @@ export default function App() {
           {activeTab === 'details' && (
             <div className="tab-pane">
 
+              {/* Template Platform & Branding Switcher */}
+              <div className="control-group">
+                <div className="label-with-meta">
+                  <div className="panel-title-row">
+                    <Layers size={15} className="panel-icon" />
+                    <label className="control-label">Template Platform &amp; Branding</label>
+                  </div>
+                  <span className="meta-tip">{platform === 'apple' ? ' Apple Music Style' : '🟢 Spotify Style'}</span>
+                </div>
+                <div className="platform-switch-grid">
+                  <button
+                    type="button"
+                    className={`platform-card-btn spotify ${platform === 'spotify' ? 'active' : ''}`}
+                    onClick={() => setPlatform('spotify')}
+                  >
+                    <div className="platform-card-icon spotify-icon">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
+                      </svg>
+                    </div>
+                    <div className="platform-card-meta">
+                      <strong>Spotify</strong>
+                      <small>Waveform Barcode &amp; Pill</small>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    className={`platform-card-btn apple ${platform === 'apple' ? 'active' : ''}`}
+                    onClick={() => setPlatform('apple')}
+                  >
+                    <div className="platform-card-icon apple-icon">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                      </svg>
+                    </div>
+                    <div className="platform-card-meta">
+                      <strong>Apple Music</strong>
+                      <small>Equalizer &amp; Lossless Badges</small>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Apple Music Audio Quality Badges (Only visible when Apple Music is active) */}
+              {platform === 'apple' && (
+                <div className="control-group">
+                  <div className="label-with-meta">
+                    <label className="control-label">Apple Audio Badges</label>
+                    <span className="meta-tip">Lossless &amp; Atmos Badges</span>
+                  </div>
+                  <div className="chip-toggle-group">
+                    {[
+                      { id: 'both', label: 'Lossless + Atmos' },
+                      { id: 'lossless', label: 'Lossless' },
+                      { id: 'atmos', label: 'Dolby Atmos' },
+                      { id: 'hires', label: 'Hi-Res' },
+                      { id: 'none', label: 'Hidden' }
+                    ].map((badge) => (
+                      <button
+                        key={badge.id}
+                        type="button"
+                        className={`chip-toggle ${appleAudioBadge === badge.id ? 'active' : ''}`}
+                        onClick={() => setAppleAudioBadge(badge.id)}
+                      >
+                        {badge.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Editable Track Metadata */}
               <div className="control-group">
                 <div className="label-with-meta">
@@ -1614,36 +1706,68 @@ export default function App() {
               <div className="control-group">
                 <label className="control-label">Visible Elements</label>
 
-                <label className="switch-row">
-                  <span className="switch-label">
-                    <strong>Spotify Waveform Barcode</strong>
-                    <small>Aesthetic scan code soundwave</small>
-                  </span>
-                  <input
-                    type="checkbox"
-                    className="custom-switch"
-                    checked={showBarcode}
-                    onChange={(e) => setShowBarcode(e.target.checked)}
-                  />
-                </label>
+                {platform === 'spotify' ? (
+                  <>
+                    <label className="switch-row">
+                      <span className="switch-label">
+                        <strong>Spotify Waveform Barcode</strong>
+                        <small>Aesthetic scan code soundwave</small>
+                      </span>
+                      <input
+                        type="checkbox"
+                        className="custom-switch"
+                        checked={showBarcode}
+                        onChange={(e) => setShowBarcode(e.target.checked)}
+                      />
+                    </label>
+
+                    <label className="switch-row">
+                      <span className="switch-label">
+                        <strong>Spotify Branding Pill</strong>
+                        <small>"Spotify" logo pill</small>
+                      </span>
+                      <input
+                        type="checkbox"
+                        className="custom-switch"
+                        checked={showBadge}
+                        onChange={(e) => setShowBadge(e.target.checked)}
+                      />
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label className="switch-row">
+                      <span className="switch-label">
+                        <strong>Apple Equalizer Waveform</strong>
+                        <small>Dynamic audio spectrum bars</small>
+                      </span>
+                      <input
+                        type="checkbox"
+                        className="custom-switch"
+                        checked={showBarcode}
+                        onChange={(e) => setShowBarcode(e.target.checked)}
+                      />
+                    </label>
+
+                    <label className="switch-row">
+                      <span className="switch-label">
+                        <strong>Apple Music Logo Pill</strong>
+                        <small>" Music" capsule badge</small>
+                      </span>
+                      <input
+                        type="checkbox"
+                        className="custom-switch"
+                        checked={showBadge}
+                        onChange={(e) => setShowBadge(e.target.checked)}
+                      />
+                    </label>
+                  </>
+                )}
 
                 <label className="switch-row">
                   <span className="switch-label">
-                    <strong>Spotify Branding Pill</strong>
-                    <small>"Spotify" logo pill</small>
-                  </span>
-                  <input
-                    type="checkbox"
-                    className="custom-switch"
-                    checked={showBadge}
-                    onChange={(e) => setShowBadge(e.target.checked)}
-                  />
-                </label>
-
-                <label className="switch-row">
-                  <span className="switch-label">
-                    <strong>Music Progress Bar</strong>
-                    <small>Playback seekbar & timestamps</small>
+                    <strong>Playback Progress Scrubber</strong>
+                    <small>{platform === 'apple' ? 'Elapsed & -Remaining countdown' : 'Playback seekbar & timestamps'}</small>
                   </span>
                   <input
                     type="checkbox"
@@ -1655,7 +1779,7 @@ export default function App() {
 
                 <label className="switch-row">
                   <span className="switch-label">
-                    <strong>Song Artist & Subtitle</strong>
+                    <strong>Song Artist &amp; Subtitle</strong>
                     <small>Display artist name below title</small>
                   </span>
                   <input
@@ -1693,6 +1817,32 @@ export default function App() {
           {/* Stage Toolbar */}
           <div className="stage-toolbar">
             <div className="stage-toolbar-left">
+              {/* Platform Switcher (Spotify vs Apple Music) */}
+              <div className="platform-pill-group">
+                <button
+                  type="button"
+                  className={`platform-pill-btn spotify ${platform === 'spotify' ? 'active' : ''}`}
+                  onClick={() => setPlatform('spotify')}
+                  title="Switch to Spotify Lyrics Card style"
+                >
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
+                  </svg>
+                  <span>Spotify</span>
+                </button>
+                <button
+                  type="button"
+                  className={`platform-pill-btn apple ${platform === 'apple' ? 'active' : ''}`}
+                  onClick={() => setPlatform('apple')}
+                  title="Switch to Apple Music Lyrics Card style"
+                >
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                  </svg>
+                  <span>Apple Music</span>
+                </button>
+              </div>
+
               <div className="format-pill-group">
                 <button
                   type="button"
@@ -1862,10 +2012,10 @@ export default function App() {
                 />
               )}
 
-              {/* The Floating Spotify Lyrics Card (tight bounds, 100% transparent outside rounded corners!) */}
+              {/* The Floating Spotify / Apple Music Lyrics Card (tight bounds, 100% transparent outside rounded corners!) */}
               <div
                 ref={lyricsCardRef}
-                className={`lyrics-card style-${colorStyle} ${isLightCard() ? 'is-light-theme' : ''} ${lyricsTextColor !== 'auto' ? 'has-custom-text-color' : ''}`}
+                className={`lyrics-card style-${colorStyle} platform-${platform} ${isLightCard() ? 'is-light-theme' : ''} ${lyricsTextColor !== 'auto' ? 'has-custom-text-color' : ''}`}
                 style={{
                   background: getCardBackground(),
                   borderRadius: `${borderRadius}px`,
@@ -1906,11 +2056,25 @@ export default function App() {
                       {showArtist && (
                         <p className="card-song-artist">{currentSong.artist}</p>
                       )}
+                      {/* Apple Music Audio Quality Badges */}
+                      {platform === 'apple' && appleAudioBadge !== 'none' && (
+                        <div className="apple-audio-badges">
+                          {(appleAudioBadge === 'both' || appleAudioBadge === 'lossless') && (
+                            <span className="apple-badge-pill">Lossless</span>
+                          )}
+                          {(appleAudioBadge === 'both' || appleAudioBadge === 'atmos') && (
+                            <span className="apple-badge-pill">Dolby Atmos</span>
+                          )}
+                          {appleAudioBadge === 'hires' && (
+                            <span className="apple-badge-pill">Hi-Res Lossless</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Spotify Barcode */}
-                  {showBarcode && (
+                  {/* Header Right Accessory: Spotify Barcode or Apple Equalizer */}
+                  {platform === 'spotify' && showBarcode && (
                     <div className="card-spotify-code">
                       <div className="code-logo">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
@@ -1923,6 +2087,23 @@ export default function App() {
                             key={i}
                             className="code-bar"
                             style={{ height: `${height}px` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {platform === 'apple' && showBarcode && (
+                    <div className="card-apple-code" title="Apple Music Sound Spectrum">
+                      <div className="apple-eq-bars">
+                        {appleEqBars.map((height, i) => (
+                          <div
+                            key={i}
+                            className={`apple-eq-bar ${isPlayingAudio ? 'is-playing' : ''}`}
+                            style={{
+                              height: `${height}px`,
+                              animationDelay: `${(i * 0.08).toFixed(2)}s`
+                            }}
                           />
                         ))}
                       </div>
@@ -1959,7 +2140,7 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Card Footer: Progress Bar & Spotify Pill */}
+                {/* Card Footer: Progress Bar & Platform Pill */}
                 <div className="card-footer">
 
                   {/* Progress Bar */}
@@ -1976,20 +2157,31 @@ export default function App() {
                         />
                       </div>
                       <div className="progress-timestamps">
-                        <span>1:24</span>
-                        <span>{Math.floor(currentSong.durationMs / 60000)}:{Math.floor((currentSong.durationMs % 60000) / 1000).toString().padStart(2, '0')}</span>
+                        <span>{getElapsedTimeString()}</span>
+                        <span>
+                          {platform === 'apple' ? getAppleRemainingTime() : `${Math.floor(currentSong.durationMs / 60000)}:${Math.floor((currentSong.durationMs % 60000) / 1000).toString().padStart(2, '0')}`}
+                        </span>
                       </div>
                     </div>
                   )}
 
-                  {/* Spotify Badge */}
+                  {/* Platform Badge */}
                   {showBadge && (
-                    <div className="spotify-pill">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
-                      </svg>
-                      <span>Spotify</span>
-                    </div>
+                    platform === 'apple' ? (
+                      <div className="apple-pill">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                        </svg>
+                        <span>Music</span>
+                      </div>
+                    ) : (
+                      <div className="spotify-pill">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
+                        </svg>
+                        <span>Spotify</span>
+                      </div>
+                    )
                   )}
 
                 </div>
@@ -2030,12 +2222,12 @@ export default function App() {
           <div className="footer-brand">
             <span className="footer-logo">⚡ Lyrify</span>
             <p className="footer-tagline">
-              Aesthetic Spotify lyrics sticker &amp; card generator for Instagram Stories, TikTok, and WhatsApp.
+              Aesthetic Spotify &amp; Apple Music lyrics sticker &amp; card generator for Instagram Stories, TikTok, and WhatsApp.
             </p>
           </div>
           <div className="footer-disclaimer">
             <p>
-              <strong>Legal Disclaimer:</strong> This website is an independent design utility and is <strong>not affiliated with, endorsed, sponsored, or officially connected with Spotify AB</strong>. "Spotify" and the Spotify logo are registered trademarks of Spotify AB. All song lyrics and album artworks are the intellectual property of their respective artists, songwriters, and record labels.
+              <strong>Legal Disclaimer:</strong> This website is an independent design utility and is <strong>not affiliated with, endorsed, sponsored, or officially connected with Spotify AB or Apple Inc.</strong> "Spotify" is a registered trademark of Spotify AB. "Apple", "Apple Music", and the Apple logo are registered trademarks of Apple Inc. All song lyrics and album artworks are the intellectual property of their respective artists, songwriters, and record labels.
             </p>
             <p className="footer-copyright">
               © {new Date().getFullYear()} Lyrify • 4K Lossless Exporter • Free for creators
