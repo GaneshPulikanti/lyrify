@@ -9,6 +9,7 @@ import {
 import { toPng, toBlob, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
 import { PRESET_SONGS } from './presets.js';
+import { transliterateIndic, detectIndicLanguage, hasNonLatinScript, capitalize } from './transliterate.js';
 
 // Curated 16 Aesthetic Color Palette Presets
 const COLOR_PRESETS = [
@@ -208,7 +209,7 @@ export default function App() {
     if (!Array.isArray(lines) || lines.length === 0) return;
 
     const fullText = lines.join('\n');
-    const hasNonLatin = /[^\u0000-\u007F]/.test(fullText);
+    const hasNonLatin = hasNonLatinScript(fullText);
 
     if (!hasNonLatin) {
       setIsNonLatinScript(false);
@@ -223,9 +224,29 @@ export default function App() {
       return;
     }
 
+    const detectedLang = detectIndicLanguage(fullText);
     setIsNonLatinScript(true);
-    setIsTranslating(true);
+    setDetectedLanguage(detectedLang);
 
+    // 1. INSTANT LOCAL TRANSLITERATION (0ms zero-lag, works 100% offline & fail-safe)
+    const localRomanized = lines.map((l) => capitalize(transliterateIndic(l).trim()));
+    setLyricsScripts({
+      original: lines,
+      romanized: localRomanized,
+      translated: []
+    });
+
+    if (autoSwitchToRomanized && localRomanized.length > 0) {
+      setActiveScript('romanized');
+      setLyrics(localRomanized);
+      showToast(`✨ Detected ${detectedLang}! Switched to Spotify English letters.`);
+    } else {
+      setActiveScript('original');
+      setLyrics(lines);
+    }
+
+    // 2. BACKGROUND ENHANCEMENT (Natural Google Romanization + English meaning translation)
+    setIsTranslating(true);
     try {
       const res = await fetch('/api/translate', {
         method: 'POST',
@@ -236,44 +257,61 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
-          const original = data.originalLines || lines;
-          const romanized = (data.romanizedLines && data.romanizedLines.length > 0) ? data.romanizedLines : original;
+          const original = (data.originalLines && data.originalLines.length > 0) ? data.originalLines : lines;
+          const romanized = (data.romanizedLines && data.romanizedLines.length > 0) ? data.romanizedLines : localRomanized;
           const translated = (data.translatedLines && data.translatedLines.length > 0) ? data.translatedLines : [];
 
           setLyricsScripts({ original, romanized, translated });
-          setDetectedLanguage(data.languageName || 'Regional');
-
-          if (autoSwitchToRomanized && romanized.length > 0) {
-            setActiveScript('romanized');
-            setLyrics(romanized);
-            showToast(`✨ Detected ${data.languageName}! Switched to Spotify English letters.`);
-          } else {
-            setActiveScript('original');
-            setLyrics(original);
+          if (data.languageName) {
+            setDetectedLanguage(data.languageName);
           }
-          return;
+
+          // If the user hasn't switched away to native script while loading, upgrade to refined romanization
+          setActiveScript((curr) => {
+            if (curr === 'romanized') {
+              setLyrics(romanized);
+            } else if (curr === 'translated' && translated.length > 0) {
+              setLyrics(translated);
+            }
+            return curr;
+          });
         }
       }
     } catch (err) {
-      console.warn('Translation error:', err);
+      console.warn('Translation enhancement warning:', err);
     } finally {
       setIsTranslating(false);
     }
-
-    // Fallback if translation fails
-    setLyricsScripts({ original: lines, romanized: lines, translated: [] });
-    setActiveScript('original');
-    setLyrics(lines);
   };
 
-  // Switch active lyrics script
-  const handleSwitchScript = (scriptKey) => {
+  // Switch active lyrics script with instant deterministic fallback
+  const handleSwitchScript = async (scriptKey) => {
     setActiveScript(scriptKey);
+
     let targetLines = lyricsScripts[scriptKey];
+
+    // If target script is missing or needs transliteration
+    if (scriptKey === 'romanized') {
+      const needsTransliteration = !targetLines || targetLines.length === 0 || targetLines.some((l) => hasNonLatinScript(l));
+      if (needsTransliteration) {
+        const source = (lyricsScripts.original && lyricsScripts.original.length > 0) ? lyricsScripts.original : lyrics;
+        targetLines = source.map((l) => capitalize(transliterateIndic(l).trim()));
+        setLyricsScripts((prev) => ({ ...prev, romanized: targetLines }));
+      }
+    } else if (scriptKey === 'original') {
+      targetLines = (lyricsScripts.original && lyricsScripts.original.length > 0) ? lyricsScripts.original : lyrics;
+    } else if (scriptKey === 'translated') {
+      if (!targetLines || targetLines.length === 0) {
+        targetLines = (lyricsScripts.romanized && lyricsScripts.romanized.length > 0) ? lyricsScripts.romanized : lyrics;
+      }
+    }
+
     if (!targetLines || targetLines.length === 0) {
       targetLines = lyricsScripts.original || lyrics;
     }
+
     setLyrics(targetLines);
+
     const labelMap = {
       romanized: 'English Letters (Spotify)',
       original: `${detectedLanguage || 'Native'} Script`,
@@ -451,14 +489,37 @@ export default function App() {
 
   const handleSaveEditLine = (index, e) => {
     if (e) e.stopPropagation();
-    if (!editingLineText.trim()) return;
+    const newText = editingLineText.trim();
+    if (!newText) return;
     const updated = [...lyrics];
-    updated[index] = editingLineText.trim();
+    updated[index] = newText;
     setLyrics(updated);
-    setLyricsScripts((prev) => ({
-      ...prev,
-      [activeScript]: updated
-    }));
+
+    const isNonLatin = hasNonLatinScript(newText);
+    if (isNonLatin) {
+      setIsNonLatinScript(true);
+      if (!detectedLanguage || detectedLanguage === 'English') {
+        setDetectedLanguage(detectIndicLanguage(newText));
+      }
+    }
+
+    setLyricsScripts((prev) => {
+      const nextOriginal = [...(prev.original || lyrics)];
+      const nextRomanized = [...(prev.romanized || lyrics)];
+      if (activeScript === 'original') {
+        nextOriginal[index] = newText;
+        nextRomanized[index] = isNonLatin ? capitalize(transliterateIndic(newText).trim()) : newText;
+      } else if (activeScript === 'romanized') {
+        nextRomanized[index] = newText;
+      } else {
+        nextOriginal[index] = newText;
+      }
+      return {
+        ...prev,
+        original: nextOriginal,
+        romanized: nextRomanized
+      };
+    });
     setEditingLineIndex(null);
     showToast('✏️ Lyric line updated!');
   };
@@ -1041,7 +1102,7 @@ export default function App() {
             <div className="tab-pane tab-pane-lyrics">
               <div className="lyrics-top-sticky-controls">
                 {/* Script / Language Switcher (Spotify English Letters / Native Script / English Meaning) */}
-                {(isNonLatinScript || detectedLanguage) && (
+                {(isNonLatinScript || (detectedLanguage && detectedLanguage !== 'English')) && (
                   <div className="lyrics-script-switcher">
                     <div className="script-switcher-header">
                       <div className="script-header-left">
@@ -1113,7 +1174,10 @@ export default function App() {
                       type="button"
                       className="btn-chip btn-chip-highlight"
                       onClick={() => {
-                        setCustomLyricsText(lyrics.join('\n'));
+                        const originalOrCurrent = (lyricsScripts.original && lyricsScripts.original.length > 0 && isNonLatinScript)
+                          ? lyricsScripts.original
+                          : lyrics;
+                        setCustomLyricsText(originalOrCurrent.join('\n'));
                         setIsCustomLyricsOpen(true);
                       }}
                     >
