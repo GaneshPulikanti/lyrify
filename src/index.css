@@ -2738,6 +2738,204 @@ input, textarea, select {
   text-shadow: 0 2px 12px rgba(15, 23, 42, 0.2);
 }
 
+/* ============================================================== */
+/* OFFICIAL APPLE MUSIC SHARE TEMPLATE (Lyrics Top, Shelf Bottom)  */
+/* ============================================================== */
+
+.lyrics-card.layout-apple-official,
+.export-frame.format-story .lyrics-card.layout-apple-official,
+.export-frame.format-square .lyrics-card.layout-apple-official,
+.export-frame.format-portrait .lyrics-card.layout-apple-official {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.apple-official-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  min-height: 100%;
+}
+
+/* Upper Lyrics Section */
+.apple-lyrics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+  min-width: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.apple-lyrics-section .card-lyric-line {
+  line-height: 1.25;
+  font-weight: 750;
+  letter-spacing: -0.012em;
+  color: var(--lyrics-text-color, #ffffff);
+  opacity: 0.94;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  word-break: break-word;
+}
+
+.apple-lyrics-section .card-lyric-line.highlight {
+  font-weight: 850;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: 0 2px 18px rgba(255, 255, 255, 0.4);
+}
+
+.apple-lyrics-section .card-lyric-sub-text {
+  font-size: 0.68em;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-top: 0.25rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Optional Progress Bar container inside official Apple layout */
+.apple-shelf-progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Dedicated Bottom Track Shelf */
+.apple-track-shelf {
+  position: relative;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.lyrics-card.style-glass .apple-track-shelf {
+  background: rgba(0, 0, 0, 0.28);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.lyrics-card.is-light-theme .apple-track-shelf {
+  background: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.apple-shelf-content {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.apple-shelf-cover-wrapper {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  background: #14151a;
+}
+
+.apple-shelf-cover-wrapper.style-rounded {
+  border-radius: 11px;
+}
+
+.apple-shelf-cover-wrapper.style-circle {
+  border-radius: 50%;
+}
+
+.apple-shelf-cover-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.apple-shelf-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 0.16rem;
+  text-align: left;
+}
+
+.apple-shelf-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.apple-shelf-title {
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+.lyrics-card.is-light-theme .apple-shelf-title {
+  color: #0f172a;
+}
+
+.apple-shelf-artist {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+.lyrics-card.is-light-theme .apple-shelf-artist {
+  color: #475569;
+}
+
+/* Official Apple Music Lockup (Music) */
+.apple-shelf-brand-official {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.16rem;
+  margin-top: 0.12rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+.apple-shelf-brand-official svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.apple-shelf-brand-official .apple-shelf-brand-text {
+  line-height: 1;
+  font-weight: 600;
+}
+
+.lyrics-card.is-light-theme .apple-shelf-brand-official {
+  color: #0f172a;
+}
+
 .stage-footer-hint {
   padding: 0.75rem 1rem;
 }
@@ -3562,6 +3760,55 @@ input, textarea, select {
     width: 88% !important;
     max-width: 260px !important;
     padding: 12px 14px !important;
+  }
+
+  /* Apple Music Official Template on Mobile */
+  .lyrics-card.layout-apple-official,
+  .export-frame.format-story .lyrics-card.layout-apple-official,
+  .export-frame.format-square .lyrics-card.layout-apple-official,
+  .export-frame.format-portrait .lyrics-card.layout-apple-official {
+    padding: 0 !important;
+  }
+
+  .apple-lyrics-section {
+    padding: 16px 16px 12px 16px !important;
+    gap: 0.65rem !important;
+  }
+
+  .apple-lyrics-section .card-lyric-line {
+    font-size: max(13px, calc(var(--lyrics-font-size, 24px) * 0.62)) !important;
+    line-height: 1.28 !important;
+  }
+
+  .apple-track-shelf {
+    padding: 10px 14px 12px 14px !important;
+  }
+
+  .apple-shelf-content {
+    gap: 0.7rem !important;
+  }
+
+  .apple-shelf-cover-wrapper {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 9px !important;
+  }
+
+  .apple-shelf-title {
+    font-size: 0.85rem !important;
+  }
+
+  .apple-shelf-artist {
+    font-size: 0.74rem !important;
+  }
+
+  .apple-shelf-brand-official {
+    font-size: 0.72rem !important;
+  }
+
+  .apple-shelf-brand-official svg {
+    width: 11px !important;
+    height: 11px !important;
   }
 
   /* Card Header on Mobile */

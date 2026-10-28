@@ -112,15 +112,18 @@ export default function App() {
 
   // --- Details & Toggles State ---
   const [platform, setPlatform] = useState('spotify'); // 'spotify' | 'apple'
-  const [appleAudioBadge, setAppleAudioBadge] = useState('both'); // 'both' | 'lossless' | 'atmos' | 'hires' | 'none'
-  const [appleBrandStyle, setAppleBrandStyle] = useState('badge'); // 'badge' | 'pill' | 'share' | 'custom'
+  const [appleLayout, setAppleLayout] = useState('official'); // 'official' (Lyrics Top, Shelf Bottom) | 'classic'
+  const [appleAudioBadge, setAppleAudioBadge] = useState('none'); // 'none' | 'both' | 'lossless' | 'atmos' | 'hires'
+  const [appleBrandStyle, setAppleBrandStyle] = useState('official'); // 'official' | 'badge' | 'pill' | 'share' | 'custom'
   const [customAppleBrandImage, setCustomAppleBrandImage] = useState(null);
+  const [isUppercaseLyrics, setIsUppercaseLyrics] = useState(false);
   const [coverStyle, setCoverStyle] = useState('rounded'); // 'rounded' | 'vinyl' | 'circle' | 'none'
   const [showBarcode, setShowBarcode] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
   const [showProgress, setShowProgress] = useState(true);
   const [showShadow, setShowShadow] = useState(true);
   const [showArtist, setShowArtist] = useState(true);
+  const [showExplicit, setShowExplicit] = useState(false);
   const [cardPadding, setCardPadding] = useState(32);
 
   // --- Stage Simulator & Export State ---
@@ -1452,6 +1455,28 @@ export default function App() {
                     </button>
                   ))}
                 </div>
+
+                {/* Letter Casing Toggle */}
+                <div className="label-with-meta" style={{ marginTop: '0.65rem' }}>
+                  <label className="control-label">Letter Casing</label>
+                  <span className="meta-tip">{isUppercaseLyrics ? 'ALL CAPS' : 'Standard'}</span>
+                </div>
+                <div className="chip-toggle-group">
+                  <button
+                    type="button"
+                    className={`chip-toggle ${!isUppercaseLyrics ? 'active' : ''}`}
+                    onClick={() => setIsUppercaseLyrics(false)}
+                  >
+                    🔡 Standard Casing
+                  </button>
+                  <button
+                    type="button"
+                    className={`chip-toggle ${isUppercaseLyrics ? 'active' : ''}`}
+                    onClick={() => setIsUppercaseLyrics(true)}
+                  >
+                    🔠 ALL CAPS (Apple Style)
+                  </button>
+                </div>
               </div>
 
               {/* Lyrics & Text Color Selection */}
@@ -1590,7 +1615,10 @@ export default function App() {
                   <button
                     type="button"
                     className={`platform-card-btn spotify ${platform === 'spotify' ? 'active' : ''}`}
-                    onClick={() => setPlatform('spotify')}
+                    onClick={() => {
+                      setPlatform('spotify');
+                      setShowBarcode(true);
+                    }}
                   >
                     <div className="platform-card-icon spotify-icon">
                       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -1605,7 +1633,16 @@ export default function App() {
                   <button
                     type="button"
                     className={`platform-card-btn apple ${platform === 'apple' ? 'active' : ''}`}
-                    onClick={() => setPlatform('apple')}
+                    onClick={() => {
+                      setPlatform('apple');
+                      setAppleLayout('official');
+                      setAppleBrandStyle('official');
+                      setIsUppercaseLyrics(true);
+                      setShowBarcode(false);
+                      setShowProgress(false);
+                      setShowExplicit(false);
+                      setAppleAudioBadge('none');
+                    }}
                   >
                     <div className="platform-card-icon apple-icon">
                       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -1614,7 +1651,7 @@ export default function App() {
                     </div>
                     <div className="platform-card-meta">
                       <strong>Apple Music</strong>
-                      <small>Equalizer &amp; Lossless Badges</small>
+                      <small>Official Share Sheet Template</small>
                     </div>
                   </button>
                 </div>
@@ -1623,54 +1660,78 @@ export default function App() {
               {/* Apple Music Audio Quality Badges & Branding (Only visible when Apple Music is active) */}
               {platform === 'apple' && (
                 <>
+                  {/* Apple Music Layout Structure */}
                   <div className="control-group">
-                  <div className="label-with-meta">
-                    <label className="control-label">Apple Audio Badges</label>
-                    <span className="meta-tip">Lossless &amp; Atmos Badges</span>
+                    <div className="label-with-meta">
+                      <label className="control-label">Apple Music Layout</label>
+                      <span className="meta-tip">{appleLayout === 'official' ? 'Official Share Sheet' : 'Classic Header'}</span>
+                    </div>
+                    <div className="chip-toggle-group">
+                      {[
+                        { id: 'official', label: 'Official Share (Lyrics Top)' },
+                        { id: 'classic', label: 'Classic (Track Top)' }
+                      ].map((l) => (
+                        <button
+                          key={l.id}
+                          type="button"
+                          className={`chip-toggle ${appleLayout === l.id ? 'active' : ''}`}
+                          onClick={() => setAppleLayout(l.id)}
+                        >
+                          {l.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="chip-toggle-group">
-                    {[
-                      { id: 'both', label: 'Lossless + Atmos' },
-                      { id: 'lossless', label: 'Lossless' },
-                      { id: 'atmos', label: 'Dolby Atmos' },
-                      { id: 'hires', label: 'Hi-Res' },
-                      { id: 'none', label: 'Hidden' }
-                    ].map((badge) => (
-                      <button
-                        key={badge.id}
-                        type="button"
-                        className={`chip-toggle ${appleAudioBadge === badge.id ? 'active' : ''}`}
-                        onClick={() => setAppleAudioBadge(badge.id)}
-                      >
-                        {badge.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Apple Music Branding Template Style */}
-                <div className="control-group">
-                  <div className="label-with-meta">
-                    <label className="control-label">Apple Branding Template</label>
-                    <span className="meta-tip">{appleBrandStyle === 'custom' ? 'Custom Image' : 'Official Template'}</span>
+                  <div className="control-group">
+                    <div className="label-with-meta">
+                      <label className="control-label">Apple Audio Badges</label>
+                      <span className="meta-tip">Lossless &amp; Atmos Badges</span>
+                    </div>
+                    <div className="chip-toggle-group">
+                      {[
+                        { id: 'none', label: 'Hidden (Share Style)' },
+                        { id: 'both', label: 'Lossless + Atmos' },
+                        { id: 'lossless', label: 'Lossless' },
+                        { id: 'atmos', label: 'Dolby Atmos' },
+                        { id: 'hires', label: 'Hi-Res' }
+                      ].map((badge) => (
+                        <button
+                          key={badge.id}
+                          type="button"
+                          className={`chip-toggle ${appleAudioBadge === badge.id ? 'active' : ''}`}
+                          onClick={() => setAppleAudioBadge(badge.id)}
+                        >
+                          {badge.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="chip-toggle-group">
-                    {[
-                      { id: 'badge', label: 'Gradient ♫ Badge' },
-                      { id: 'pill', label: ' Music Pill' },
-                      { id: 'share', label: 'Listen on ' },
-                      { id: 'custom', label: 'Upload Mine' }
-                    ].map((style) => (
-                      <button
-                        key={style.id}
-                        type="button"
-                        className={`chip-toggle ${appleBrandStyle === style.id ? 'active' : ''}`}
-                        onClick={() => setAppleBrandStyle(style.id)}
-                      >
-                        {style.label}
-                      </button>
-                    ))}
-                  </div>
+
+                  {/* Apple Music Branding Template Style */}
+                  <div className="control-group">
+                    <div className="label-with-meta">
+                      <label className="control-label">Apple Branding Template</label>
+                      <span className="meta-tip">{appleBrandStyle === 'custom' ? 'Custom Image' : appleBrandStyle === 'official' ? 'Music Lockup' : 'Template Badge'}</span>
+                    </div>
+                    <div className="chip-toggle-group">
+                      {[
+                        { id: 'official', label: 'Music Official' },
+                        { id: 'badge', label: 'Gradient ♫ Badge' },
+                        { id: 'pill', label: ' Music Pill' },
+                        { id: 'share', label: 'Listen on ' },
+                        { id: 'custom', label: 'Upload Mine' }
+                      ].map((style) => (
+                        <button
+                          key={style.id}
+                          type="button"
+                          className={`chip-toggle ${appleBrandStyle === style.id ? 'active' : ''}`}
+                          onClick={() => setAppleBrandStyle(style.id)}
+                        >
+                          {style.label}
+                        </button>
+                      ))}
+                    </div>
 
                   {appleBrandStyle === 'custom' && (
                     <div className="custom-brand-upload-box" style={{ marginTop: '0.65rem' }}>
@@ -1864,6 +1925,19 @@ export default function App() {
                     onChange={(e) => setShowArtist(e.target.checked)}
                   />
                 </label>
+
+                <label className="switch-row">
+                  <span className="switch-label">
+                    <strong>Explicit Advisory [E] Badge</strong>
+                    <small>Show advisory tag next to song title</small>
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="custom-switch"
+                    checked={showExplicit}
+                    onChange={(e) => setShowExplicit(e.target.checked)}
+                  />
+                </label>
               </div>
 
             </div>
@@ -1897,7 +1971,10 @@ export default function App() {
                 <button
                   type="button"
                   className={`platform-pill-btn spotify ${platform === 'spotify' ? 'active' : ''}`}
-                  onClick={() => setPlatform('spotify')}
+                  onClick={() => {
+                    setPlatform('spotify');
+                    setShowBarcode(true);
+                  }}
                   title="Switch to Spotify Lyrics Card style"
                 >
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
@@ -1908,7 +1985,16 @@ export default function App() {
                 <button
                   type="button"
                   className={`platform-pill-btn apple ${platform === 'apple' ? 'active' : ''}`}
-                  onClick={() => setPlatform('apple')}
+                  onClick={() => {
+                    setPlatform('apple');
+                    setAppleLayout('official');
+                    setAppleBrandStyle('official');
+                    setIsUppercaseLyrics(true);
+                    setShowBarcode(false);
+                    setShowProgress(false);
+                    setShowExplicit(false);
+                    setAppleAudioBadge('none');
+                  }}
                   title="Switch to Apple Music Lyrics Card style"
                 >
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
@@ -2091,11 +2177,11 @@ export default function App() {
               <div
                 ref={lyricsCardRef}
                 data-align={textAlign}
-                className={`lyrics-card style-${colorStyle} platform-${platform} ${isLightCard() ? 'is-light-theme' : ''} ${lyricsTextColor !== 'auto' ? 'has-custom-text-color' : ''}`}
+                className={`lyrics-card style-${colorStyle} platform-${platform} ${platform === 'apple' && appleLayout === 'official' ? 'layout-apple-official' : ''} ${isLightCard() ? 'is-light-theme' : ''} ${lyricsTextColor !== 'auto' ? 'has-custom-text-color' : ''}`}
                 style={{
                   background: getCardBackground(),
                   borderRadius: `${borderRadius}px`,
-                  padding: `${cardPadding}px`,
+                  padding: (platform === 'apple' && appleLayout === 'official') ? 0 : `${cardPadding}px`,
                   textAlign: textAlign,
                   boxShadow: (showShadow && format !== 'sticker') ? undefined : 'none',
                   '--card-padding': `${cardPadding}px`,
@@ -2106,198 +2192,380 @@ export default function App() {
                 }}
               >
 
-                {/* Card Header: Album Art & Title */}
-                <div className="card-header">
-                  <div className="card-track-info">
-                    {coverStyle !== 'none' && (
-                      <div className={`card-cover-wrapper style-${coverStyle}`}>
-                        <img
-                          src={getCoverSrc(currentSong.coverArt)}
-                          alt={currentSong.title}
-                          loading="eager"
-                          onError={(e) => {
-                            if (!e.target.src.startsWith('data:') && !e.target.src.includes('/api/image-proxy')) {
-                              e.target.src = `/api/image-proxy?url=${encodeURIComponent(currentSong.coverArt)}`;
-                            }
-                          }}
-                        />
-                        {coverStyle === 'vinyl' && <div className="vinyl-center-hole" />}
+                {platform === 'apple' && appleLayout === 'official' ? (
+                  /* ============================================================== */
+                  /* OFFICIAL APPLE MUSIC SHARE SHEET TEMPLATE (Lyrics Top, Shelf Bottom) */
+                  /* ============================================================== */
+                  <div className="apple-official-wrapper">
+                    {/* Top Lyrics Section */}
+                    <div
+                      className="apple-lyrics-section"
+                      style={{
+                        padding: `${cardPadding}px ${cardPadding}px ${showProgress ? '14px' : `${cardPadding}px`} ${cardPadding}px`,
+                        fontFamily: getFontCss(fontFamily),
+                        fontSize: `${fontSize}px`,
+                        textAlign: textAlign,
+                        textTransform: isUppercaseLyrics ? 'uppercase' : 'none'
+                      }}
+                    >
+                      {displayLyrics.length > 0 ? (
+                        displayLyrics.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className={`card-lyric-line ${item.isHighlighted ? 'highlight' : ''}`}
+                          >
+                            <div className="card-lyric-main-text">{item.text}</div>
+                            {showSubtitles && lyricsScripts.translated && lyricsScripts.translated[item.index] && (
+                              <div className="card-lyric-sub-text">
+                                {lyricsScripts.translated[item.index]}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="card-lyric-line">
+                          (No lyrics selected. Tap lines in Lyrics tab to add!)
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Optional Audio Progress Bar */}
+                    {showProgress && (
+                      <div className="apple-shelf-progress-container" style={{ padding: `0 ${cardPadding}px 14px ${cardPadding}px` }}>
+                        <div className="progress-bar-track">
+                          <div
+                            className="progress-bar-fill"
+                            style={{ width: `${audioProgress}%` }}
+                          />
+                          <div
+                            className="progress-bar-thumb"
+                            style={{ left: `${audioProgress}%` }}
+                          />
+                        </div>
+                        <div className="progress-timestamps">
+                          <span>{getElapsedTimeString()}</span>
+                          <span>{getAppleRemainingTime()}</span>
+                        </div>
                       </div>
                     )}
-                    <div className="card-title-block">
-                      <div className="title-row">
-                        <h2 className="card-song-title">{currentSong.title}</h2>
-                        <span className="explicit-badge">E</span>
-                      </div>
-                      {showArtist && (
-                        <p className="card-song-artist">{currentSong.artist}</p>
-                      )}
-                      {/* Apple Music Audio Quality Badges */}
-                      {platform === 'apple' && appleAudioBadge !== 'none' && (
-                        <div className="apple-audio-badges">
-                          {appleAudioBadge === 'both' && (
-                            <span className="apple-badge-pill">Lossless · Dolby Atmos</span>
-                          )}
-                          {appleAudioBadge === 'lossless' && (
-                            <span className="apple-badge-pill">Lossless</span>
-                          )}
-                          {appleAudioBadge === 'atmos' && (
-                            <span className="apple-badge-pill">Dolby Atmos</span>
-                          )}
-                          {appleAudioBadge === 'hires' && (
-                            <span className="apple-badge-pill">Hi-Res Lossless</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
-                  {/* Header Right Accessory: Spotify Barcode or Apple Equalizer */}
-                  {platform === 'spotify' && showBarcode && (
-                    <div className="card-spotify-code">
-                      <div className="code-logo">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
-                        </svg>
-                      </div>
-                      <div className="code-bars">
-                        {barcodeBars.map((height, i) => (
-                          <div
-                            key={i}
-                            className="code-bar"
-                            style={{ height: `${height}px` }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {platform === 'apple' && showBarcode && (
-                    <div className="card-apple-code" title="Apple Music Sound Spectrum">
-                      <div className="apple-eq-bars">
-                        {appleEqBars.map((height, i) => (
-                          <div
-                            key={i}
-                            className={`apple-eq-bar ${isPlayingAudio ? 'is-playing' : ''}`}
-                            style={{
-                              height: `${height}px`,
-                              animationDelay: `${(i * 0.08).toFixed(2)}s`
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Lyrics Content */}
-                <div
-                  className="card-lyrics-content"
-                  style={{
-                    fontFamily: getFontCss(fontFamily),
-                    fontSize: `${fontSize}px`
-                  }}
-                >
-                  {displayLyrics.length > 0 ? (
-                    displayLyrics.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`card-lyric-line ${item.isHighlighted ? 'highlight' : ''}`}
-                      >
-                        <div className="card-lyric-main-text">{item.text}</div>
-                        {showSubtitles && lyricsScripts.translated && lyricsScripts.translated[item.index] && (
-                          <div className="card-lyric-sub-text">
-                            {lyricsScripts.translated[item.index]}
+                    {/* Bottom Track Info Shelf (iOS Apple Music Share Layout) */}
+                    <div
+                      className="apple-track-shelf"
+                      style={{
+                        padding: `14px ${cardPadding}px 18px ${cardPadding}px`
+                      }}
+                    >
+                      <div className="apple-shelf-content">
+                        {coverStyle !== 'none' && (
+                          <div className={`apple-shelf-cover-wrapper style-${coverStyle}`}>
+                            <img
+                              src={getCoverSrc(currentSong.coverArt)}
+                              alt={currentSong.title}
+                              loading="eager"
+                              onError={(e) => {
+                                if (!e.target.src.startsWith('data:') && !e.target.src.includes('/api/image-proxy')) {
+                                  e.target.src = `/api/image-proxy?url=${encodeURIComponent(currentSong.coverArt)}`;
+                                }
+                              }}
+                            />
+                            {coverStyle === 'vinyl' && <div className="vinyl-center-hole" />}
                           </div>
                         )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="card-lyric-line">
-                      (No lyrics selected. Tap lines in Lyrics tab to add!)
-                    </div>
-                  )}
-                </div>
 
-                {/* Card Footer: Progress Bar & Platform Pill */}
-                <div className="card-footer">
+                        <div className="apple-shelf-meta">
+                          <div className="apple-shelf-title-row">
+                            <h2 className="apple-shelf-title">
+                              {isUppercaseLyrics ? currentSong.title.toUpperCase() : currentSong.title}
+                            </h2>
+                            {showExplicit && <span className="explicit-badge">E</span>}
+                          </div>
 
-                  {/* Progress Bar */}
-                  {showProgress && (
-                    <div className="card-progress-container">
-                      <div className="progress-bar-track">
-                        <div
-                          className="progress-bar-fill"
-                          style={{ width: `${audioProgress}%` }}
-                        />
-                        <div
-                          className="progress-bar-thumb"
-                          style={{ left: `${audioProgress}%` }}
-                        />
-                      </div>
-                      <div className="progress-timestamps">
-                        <span>{getElapsedTimeString()}</span>
-                        <span>
-                          {platform === 'apple' ? getAppleRemainingTime() : `${Math.floor(currentSong.durationMs / 60000)}:${Math.floor((currentSong.durationMs % 60000) / 1000).toString().padStart(2, '0')}`}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                          {showArtist && (
+                            <p className="apple-shelf-artist">{currentSong.artist}</p>
+                          )}
 
-                  {/* Platform Badge */}
-                  {showBadge && (
-                    platform === 'apple' ? (
-                      customAppleBrandImage ? (
-                        <div className="apple-custom-brand">
-                          <img src={customAppleBrandImage} alt="Apple Music" className="apple-custom-brand-img" />
+                          {/* Apple Audio Quality Badges if enabled */}
+                          {appleAudioBadge !== 'none' && (
+                            <div className="apple-audio-badges">
+                              {appleAudioBadge === 'both' && (
+                                <span className="apple-badge-pill">Lossless · Dolby Atmos</span>
+                              )}
+                              {appleAudioBadge === 'lossless' && (
+                                <span className="apple-badge-pill">Lossless</span>
+                              )}
+                              {appleAudioBadge === 'atmos' && (
+                                <span className="apple-badge-pill">Dolby Atmos</span>
+                              )}
+                              {appleAudioBadge === 'hires' && (
+                                <span className="apple-badge-pill">Hi-Res Lossless</span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Apple Music Branding Lockup */}
+                          {showBadge && (
+                            customAppleBrandImage ? (
+                              <div className="apple-custom-brand">
+                                <img src={customAppleBrandImage} alt="Apple Music" className="apple-custom-brand-img" />
+                              </div>
+                            ) : appleBrandStyle === 'badge' ? (
+                              <div className="apple-badge-branded">
+                                <div className="apple-music-icon-squircle">
+                                  <svg viewBox="0 0 28 28" width="16" height="16" fill="none">
+                                    <defs>
+                                      <linearGradient id="appleMusicGradShelf" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#fa2d55" />
+                                        <stop offset="50%" stopColor="#fc3c44" />
+                                        <stop offset="100%" stopColor="#c41c30" />
+                                      </linearGradient>
+                                    </defs>
+                                    <rect width="28" height="28" rx="6.5" fill="url(#appleMusicGradShelf)" />
+                                    <path
+                                      fill="#ffffff"
+                                      d="M19.4 6.8c-.3-.1-.7 0-.9.2l-7.2 2.5c-.3.1-.5.4-.5.7v9.4c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3v-7.3l6.5-2.2v5.7c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3V7.5c0-.4-.2-.6-.6-.7z"
+                                    />
+                                  </svg>
+                                </div>
+                                <span className="apple-brand-name">Apple Music</span>
+                              </div>
+                            ) : appleBrandStyle === 'pill' ? (
+                              <div className="apple-pill">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                                </svg>
+                                <span>Music</span>
+                              </div>
+                            ) : appleBrandStyle === 'share' ? (
+                              <div className="apple-pill apple-pill-share">
+                                <span className="apple-share-prefix">Listen on</span>
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                                </svg>
+                                <span>Music</span>
+                              </div>
+                            ) : (
+                              /* 'official' - exact Music lockup as in user reference */
+                              <div className="apple-shelf-brand-official">
+                                <svg viewBox="0 0 170 170" width="13" height="13" fill="currentColor" style={{ display: 'inline-block', verticalAlign: '-1px' }}>
+                                  <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.7-7.85-12-14.42-6.01-9.16-10.74-19.46-14.2-30.88-3.46-11.43-5.2-22.37-5.2-32.83 0-14.28 3.59-25.92 10.78-34.92 7.18-9 16.48-13.62 27.9-13.86 4.9 0 10.51 1.25 16.82 3.75 6.31 2.51 10.42 3.86 12.33 4.07 1.74-.21 6.06-1.63 12.98-4.27 6.92-2.64 12.79-3.75 17.62-3.35 13.4.74 24.13 5.48 32.19 14.22-11.66 7.07-17.38 16.82-17.16 29.25.21 9.94 4.07 18.25 11.59 24.93 7.51 6.68 16.43 10.55 26.74 11.61-2.13 6.64-4.85 13.59-8.17 20.85zm-33.8-109.84c.14 2.22-.32 4.67-1.39 7.35-1.07 2.68-2.64 5.25-4.71 7.71-2.58 3.04-5.69 5.56-9.33 7.56-3.64 2-7.25 3.24-10.82 3.72-.44-2.12-.22-4.5.66-7.14.88-2.64 2.38-5.22 4.5-7.74 2.24-2.73 5.31-5.18 9.21-7.35 3.9-2.17 7.7-3.41 11.39-3.71.16-.4.32-.4.49-.4z" />
+                                </svg>
+                                <span className="apple-shelf-brand-text">Music</span>
+                              </div>
+                            )
+                          )}
                         </div>
-                      ) : appleBrandStyle === 'badge' ? (
-                        <div className="apple-badge-branded">
-                          <div className="apple-music-icon-squircle">
-                            <svg viewBox="0 0 28 28" width="18" height="18" fill="none">
-                              <defs>
-                                <linearGradient id="appleMusicGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#fa2d55" />
-                                  <stop offset="50%" stopColor="#fc3c44" />
-                                  <stop offset="100%" stopColor="#c41c30" />
-                                </linearGradient>
-                              </defs>
-                              <rect width="28" height="28" rx="6.5" fill="url(#appleMusicGradCard)" />
-                              <path
-                                fill="#ffffff"
-                                d="M19.4 6.8c-.3-.1-.7 0-.9.2l-7.2 2.5c-.3.1-.5.4-.5.7v9.4c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3v-7.3l6.5-2.2v5.7c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3V7.5c0-.4-.2-.6-.6-.7z"
-                              />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* ============================================================== */
+                  /* CLASSIC LAYOUT (Header on Top, Lyrics Center, Footer Bottom)   */
+                  /* ============================================================== */
+                  <>
+                    {/* Card Header: Album Art & Title */}
+                    <div className="card-header">
+                      <div className="card-track-info">
+                        {coverStyle !== 'none' && (
+                          <div className={`card-cover-wrapper style-${coverStyle}`}>
+                            <img
+                              src={getCoverSrc(currentSong.coverArt)}
+                              alt={currentSong.title}
+                              loading="eager"
+                              onError={(e) => {
+                                if (!e.target.src.startsWith('data:') && !e.target.src.includes('/api/image-proxy')) {
+                                  e.target.src = `/api/image-proxy?url=${encodeURIComponent(currentSong.coverArt)}`;
+                                }
+                              }}
+                            />
+                            {coverStyle === 'vinyl' && <div className="vinyl-center-hole" />}
+                          </div>
+                        )}
+                        <div className="card-title-block">
+                          <div className="title-row">
+                            <h2 className="card-song-title">
+                              {isUppercaseLyrics ? currentSong.title.toUpperCase() : currentSong.title}
+                            </h2>
+                            {showExplicit && <span className="explicit-badge">E</span>}
+                          </div>
+                          {showArtist && (
+                            <p className="card-song-artist">{currentSong.artist}</p>
+                          )}
+                          {/* Apple Music Audio Quality Badges */}
+                          {platform === 'apple' && appleAudioBadge !== 'none' && (
+                            <div className="apple-audio-badges">
+                              {appleAudioBadge === 'both' && (
+                                <span className="apple-badge-pill">Lossless · Dolby Atmos</span>
+                              )}
+                              {appleAudioBadge === 'lossless' && (
+                                <span className="apple-badge-pill">Lossless</span>
+                              )}
+                              {appleAudioBadge === 'atmos' && (
+                                <span className="apple-badge-pill">Dolby Atmos</span>
+                              )}
+                              {appleAudioBadge === 'hires' && (
+                                <span className="apple-badge-pill">Hi-Res Lossless</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Header Right Accessory: Spotify Barcode or Apple Equalizer */}
+                      {platform === 'spotify' && showBarcode && (
+                        <div className="card-spotify-code">
+                          <div className="code-logo">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
                             </svg>
                           </div>
-                          <span className="apple-brand-name">Apple Music</span>
+                          <div className="code-bars">
+                            {barcodeBars.map((height, i) => (
+                              <div
+                                key={i}
+                                className="code-bar"
+                                style={{ height: `${height}px` }}
+                              />
+                            ))}
+                          </div>
                         </div>
-                      ) : appleBrandStyle === 'share' ? (
-                        <div className="apple-pill apple-pill-share">
-                          <span className="apple-share-prefix">Listen on</span>
-                          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
-                          </svg>
-                          <span>Music</span>
-                        </div>
-                      ) : (
-                        <div className="apple-pill">
-                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
-                          </svg>
-                          <span>Music</span>
-                        </div>
-                      )
-                    ) : (
-                      <div className="spotify-pill">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
-                        </svg>
-                        <span>Spotify</span>
-                      </div>
-                    )
-                  )}
+                      )}
 
-                </div>
+                      {platform === 'apple' && showBarcode && (
+                        <div className="card-apple-code" title="Apple Music Sound Spectrum">
+                          <div className="apple-eq-bars">
+                            {appleEqBars.map((height, i) => (
+                              <div
+                                key={i}
+                                className={`apple-eq-bar ${isPlayingAudio ? 'is-playing' : ''}`}
+                                style={{
+                                  height: `${height}px`,
+                                  animationDelay: `${(i * 0.08).toFixed(2)}s`
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Lyrics Content */}
+                    <div
+                      className="card-lyrics-content"
+                      style={{
+                        fontFamily: getFontCss(fontFamily),
+                        fontSize: `${fontSize}px`,
+                        textTransform: isUppercaseLyrics ? 'uppercase' : 'none'
+                      }}
+                    >
+                      {displayLyrics.length > 0 ? (
+                        displayLyrics.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className={`card-lyric-line ${item.isHighlighted ? 'highlight' : ''}`}
+                          >
+                            <div className="card-lyric-main-text">{item.text}</div>
+                            {showSubtitles && lyricsScripts.translated && lyricsScripts.translated[item.index] && (
+                              <div className="card-lyric-sub-text">
+                                {lyricsScripts.translated[item.index]}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="card-lyric-line">
+                          (No lyrics selected. Tap lines in Lyrics tab to add!)
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card Footer: Progress Bar & Platform Pill */}
+                    <div className="card-footer">
+                      {/* Progress Bar */}
+                      {showProgress && (
+                        <div className="card-progress-container">
+                          <div className="progress-bar-track">
+                            <div
+                              className="progress-bar-fill"
+                              style={{ width: `${audioProgress}%` }}
+                            />
+                            <div
+                              className="progress-bar-thumb"
+                              style={{ left: `${audioProgress}%` }}
+                            />
+                          </div>
+                          <div className="progress-timestamps">
+                            <span>{getElapsedTimeString()}</span>
+                            <span>
+                              {platform === 'apple' ? getAppleRemainingTime() : `${Math.floor(currentSong.durationMs / 60000)}:${Math.floor((currentSong.durationMs % 60000) / 1000).toString().padStart(2, '0')}`}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Platform Badge */}
+                      {showBadge && (
+                        platform === 'apple' ? (
+                          customAppleBrandImage ? (
+                            <div className="apple-custom-brand">
+                              <img src={customAppleBrandImage} alt="Apple Music" className="apple-custom-brand-img" />
+                            </div>
+                          ) : appleBrandStyle === 'badge' ? (
+                            <div className="apple-badge-branded">
+                              <div className="apple-music-icon-squircle">
+                                <svg viewBox="0 0 28 28" width="18" height="18" fill="none">
+                                  <defs>
+                                    <linearGradient id="appleMusicGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+                                      <stop offset="0%" stopColor="#fa2d55" />
+                                      <stop offset="50%" stopColor="#fc3c44" />
+                                      <stop offset="100%" stopColor="#c41c30" />
+                                    </linearGradient>
+                                  </defs>
+                                  <rect width="28" height="28" rx="6.5" fill="url(#appleMusicGradCard)" />
+                                  <path
+                                    fill="#ffffff"
+                                    d="M19.4 6.8c-.3-.1-.7 0-.9.2l-7.2 2.5c-.3.1-.5.4-.5.7v9.4c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3v-7.3l6.5-2.2v5.7c-.6-.4-1.3-.6-2-.6-1.8 0-3.2 1.3-3.2 3s1.4 3 3.2 3 3.2-1.3 3.2-3V7.5c0-.4-.2-.6-.6-.7z"
+                                  />
+                                </svg>
+                              </div>
+                              <span className="apple-brand-name">Apple Music</span>
+                            </div>
+                          ) : appleBrandStyle === 'share' ? (
+                            <div className="apple-pill apple-pill-share">
+                              <span className="apple-share-prefix">Listen on</span>
+                              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                              </svg>
+                              <span>Music</span>
+                            </div>
+                          ) : appleBrandStyle === 'pill' ? (
+                            <div className="apple-pill">
+                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.56.64-1.06 1.7-0.93 2.73 1.01.08 2.05-.48 2.66-1.23z" />
+                              </svg>
+                              <span>Music</span>
+                            </div>
+                          ) : (
+                            /* 'official' - clean Music lockup */
+                            <div className="apple-shelf-brand-official" style={{ fontSize: '0.85rem' }}>
+                              <svg viewBox="0 0 170 170" width="14" height="14" fill="currentColor" style={{ display: 'inline-block', verticalAlign: '-1px' }}>
+                                <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.7-7.85-12-14.42-6.01-9.16-10.74-19.46-14.2-30.88-3.46-11.43-5.2-22.37-5.2-32.83 0-14.28 3.59-25.92 10.78-34.92 7.18-9 16.48-13.62 27.9-13.86 4.9 0 10.51 1.25 16.82 3.75 6.31 2.51 10.42 3.86 12.33 4.07 1.74-.21 6.06-1.63 12.98-4.27 6.92-2.64 12.79-3.75 17.62-3.35 13.4.74 24.13 5.48 32.19 14.22-11.66 7.07-17.38 16.82-17.16 29.25.21 9.94 4.07 18.25 11.59 24.93 7.51 6.68 16.43 10.55 26.74 11.61-2.13 6.64-4.85 13.59-8.17 20.85zm-33.8-109.84c.14 2.22-.32 4.67-1.39 7.35-1.07 2.68-2.64 5.25-4.71 7.71-2.58 3.04-5.69 5.56-9.33 7.56-3.64 2-7.25 3.24-10.82 3.72-.44-2.12-.22-4.5.66-7.14.88-2.64 2.38-5.22 4.5-7.74 2.24-2.73 5.31-5.18 9.21-7.35 3.9-2.17 7.7-3.41 11.39-3.71.16-.4.32-.4.49-.4z" />
+                              </svg>
+                              <span className="apple-shelf-brand-text">Music</span>
+                            </div>
+                          )
+                        ) : (
+                          <div className="spotify-pill">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.625.625 0 01-.86.207c-2.355-1.439-5.32-1.765-8.813-.967a.624.624 0 11-.278-1.218c3.826-.874 7.112-.507 9.744 1.118a.625.625 0 01.207.86zm1.225-2.723a.782.782 0 01-1.077.257c-2.696-1.658-6.806-2.137-9.995-1.17a.781.781 0 01-.453-1.497c3.64-1.104 8.188-.574 11.268 1.333a.781.781 0 01.257 1.077zm.106-2.836C14.689 8.91 9.36 8.73 6.273 9.667a.937.937 0 11-.543-1.792c3.54-1.074 9.444-.866 13.254 1.396a.938.938 0 01-.937 1.621z" />
+                            </svg>
+                            <span>Spotify</span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </>
+                )}
 
               </div>
             </div>

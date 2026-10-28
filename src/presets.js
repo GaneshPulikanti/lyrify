@@ -79,13 +79,13 @@ export const PRESET_SONGS = [
     "durationMs": 210373,
     "spotifyColor": "rgb(35, 40, 50)",
     "selectedIndices": [
+      1,
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
-    "highlightIndex": 4,
+    "highlightIndex": 1,
     "lyrics": [
       "('Til I'm in the grave)",
       "I want you to stay",
